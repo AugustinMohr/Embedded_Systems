@@ -38,26 +38,35 @@
 
 #include "msp.h"
 
+void delay(int time); // in ms
+
+
 int main(void)
 {
+    //init
     int period, duty, i;
-    period =100000;
-    duty=50000;
+
     P2->DIR = 0xFF;
     P2->OUT = 0x00;
+        // CONFIGURATION DE ACKL, SOURCE = REFO
+    TIMER_A0->CTL = TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;//TIMER_A_CTL_IE  // CONFIG DE TIMER A, SOURCE = ACKL
+
+
+
     while(1)
     {
-        P2->OUT = 0x11100000;
-        for(i=0; i<duty; i++)
-        {
-           ;
-        }
-        P2->OUT = 0x00;
-        for(i=0; i<period-duty; i++)
-        {
-           ;
-        }
+
     }
     return 0;
 }
 
+void delay(int time) {
+    // timer à 0
+    // compare au bon multiple de time
+    int compare = time * 128;
+    TIMER_A0->CTL = TIMER_A_
+    while((TIMER_A0->CTL & TIMER_A_CTL_IFG) == 0) {
+        ;
+    }
+
+}

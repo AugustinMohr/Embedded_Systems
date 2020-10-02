@@ -1,0 +1,29 @@
+/.metadata/
+
+.jxbrowser-data/
+
+RemoteSystemsTempFiles/
+
+Labo 1/.launches/
+
+Labo 1/.settings/
+
+Labo 1/targetConfigs/
+
+Labo 1/.ccsproject
+
+Labo 1/.cproject
+
+Labo 1/msp432e401y.cmd
+
+Labo 1/msp432p401r.cmd
+
+Labo 1/startup_msp432e401y_ccs.c
+
+Labo 1/startup_msp432p401r_ccs.c
+
+Labo 1/system_msp432e401y.c
+
+Labo 1/system_msp432p401r.c
+
+Labo 1/.project

@@ -44,6 +44,13 @@ void delay(int time); // in ms
 int main(void)
 {
     //init
+    // Stop the watchdog timer
+    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;
+    // Periodically clear an active watchdog and specify the delay for next period
+    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_IS_0 | WDT_A_CTL_CNTCL;
+
+
+
     int period, duty, i;
 
     P2->DIR = 0xFF;

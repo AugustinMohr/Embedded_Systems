@@ -38,11 +38,15 @@
 
 #include "msp.h"
 
+#define PWM_PER (20 * 64)
+
 void delay(int time); // in ms
 
 void initClock(void);
 
 void initTimerA(void);
+
+void initPWM(int duty);
 
 int main(void)
 {
@@ -52,6 +56,7 @@ int main(void)
 
     initClock();
     initTimerA();
+    initPWM(10);
 
     //int period, duty, i;
 
@@ -61,19 +66,24 @@ int main(void)
 
     while(1)
     {
-        P2->OUT = 0x00;
-        delay(300);
-        P2->OUT = 0xff;
-        delay(700);
+
     }
     return 0;
+}
+
+void initPWM(int duty) {
+    TIMER_A0->CCR[0] = PWM_PER; // 20 ms period
+    TIMER_A0->CCR[1] = duty * 64; // duty cycle
+    TIMER_A0->CCTL[OUTMOD] |= TIMER_A_CCTLN_OUTMOD_4;
+
+    // output PWM to
 }
 
 void initClock(void) {
     CS->KEY = CS_KEY_VAL;
     CS->CLKEN |= CS_CLKEN_ACLK_EN;   // ENABLE DE ACKL
-    CS->CTL1 |= CS_CTL1_SELA__REFOCLK | CS_CTL1_DIVA__64; // SOURCE = REFO, DIV = 64
-    CS->CLKEN |= CS_CLKEN_REFOFSEL; // FREQUENCY = 128/64 = 2 kHz
+    //CS->CTL1 |= CS_CTL1_SELA__REFOCLK | CS_CTL1_DIVA__64; // SOURCE = REFO, DIV = 64
+    CS->CLKEN |= CS_CLKEN_REFOFSEL; // FREQUENCY = 128 kHz
 }
 
 void initTimerA(void) {
@@ -83,14 +93,11 @@ void initTimerA(void) {
 }
 
 void delay(int time) {
-    // timer à 0
-    // compare au bon multiple de time
+
     TIMER_A0->CTL &= ~TIMER_A_CTL_IFG; //reset interrupt flag
     TIMER_A0->CTL |= TIMER_A_CTL_CLR; // clear timer A
-    TIMER_A0->CCR[0] = time; // fill compare register
-    //TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CCIFG;
-    while((TIMER_A0->CTL & TIMER_A_CTL_IFG) == 0) {
-        ;
-    }
-    TIMER_A0->CCR[0] = 0;// stop timer ?
+    TIMER_A0->CCR[0] = 64 * time; // fill compare register
+
+    while((TIMER_A0->CTL & TIMER_A_CTL_IFG) == 0) ;
+    TIMER_A0->CCR[0] = 0;// stop timer
 }

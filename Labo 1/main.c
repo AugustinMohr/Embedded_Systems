@@ -40,40 +40,57 @@
 
 void delay(int time); // in ms
 
+void initClock(void);
+
+void initTimerA(void);
 
 int main(void)
 {
     //init
     // Stop the watchdog timer
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;
-    // Periodically clear an active watchdog and specify the delay for next period
-    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_IS_0 | WDT_A_CTL_CNTCL;
 
+    initClock();
+    initTimerA();
 
-
-    int period, duty, i;
+    //int period, duty, i;
 
     P2->DIR = 0xFF;
     P2->OUT = 0x00;
-        // CONFIGURATION DE ACKL, SOURCE = REFO
-    TIMER_A0->CTL = TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;//TIMER_A_CTL_IE  // CONFIG DE TIMER A, SOURCE = ACKL
-
 
 
     while(1)
     {
-
+        P2->OUT = 0x00;
+        delay(300);
+        P2->OUT = 0xff;
+        delay(700);
     }
     return 0;
+}
+
+void initClock(void) {
+    CS->KEY = CS_KEY_VAL;
+    CS->CLKEN |= CS_CLKEN_ACLK_EN;   // ENABLE DE ACKL
+    CS->CTL1 |= CS_CTL1_SELA__REFOCLK | CS_CTL1_DIVA__128; // SOURCE = REFO, DIV = 128
+    CS->CLKEN |= CS_CLKEN_REFOFSEL; // FREQUENCY = 128/128 = 1 kHz
+}
+
+void initTimerA(void) {
+    TIMER_A0->CTL &= ~(TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__INCLK);
+    TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;// CONFIG DE TIMER A; SOURCE = ACKL, MODE = UP/DOWN,
+    TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CAP; // compare mode
 }
 
 void delay(int time) {
     // timer à 0
     // compare au bon multiple de time
-    int compare = time * 128;
-    TIMER_A0->CTL = TIMER_A_
+    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG; //reset interrupt flag
+    TIMER_A0->CTL |= TIMER_A_CTL_CLR; // clear timer A
+    TIMER_A0->CCR[0] = time; // fill compare register
+    //TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CCIFG;
     while((TIMER_A0->CTL & TIMER_A_CTL_IFG) == 0) {
         ;
     }
-
+    TIMER_A0->CCR[0] = 0;// stop timer ?
 }

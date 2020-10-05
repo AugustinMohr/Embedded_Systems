@@ -72,8 +72,8 @@ int main(void)
 void initClock(void) {
     CS->KEY = CS_KEY_VAL;
     CS->CLKEN |= CS_CLKEN_ACLK_EN;   // ENABLE DE ACKL
-    CS->CTL1 |= CS_CTL1_SELA__REFOCLK | CS_CTL1_DIVA__128; // SOURCE = REFO, DIV = 128
-    CS->CLKEN |= CS_CLKEN_REFOFSEL; // FREQUENCY = 128/128 = 1 kHz
+    CS->CTL1 |= CS_CTL1_SELA__REFOCLK | CS_CTL1_DIVA__64; // SOURCE = REFO, DIV = 64
+    CS->CLKEN |= CS_CLKEN_REFOFSEL; // FREQUENCY = 128/64 = 2 kHz
 }
 
 void initTimerA(void) {

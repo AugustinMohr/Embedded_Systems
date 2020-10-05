@@ -60,8 +60,8 @@ int main(void)
 
     //int period, duty, i;
 
-    P2->DIR = 0xFF;
-    P2->OUT = 0x00;
+    //P2->DIR = 0xFF;
+    //P2->OUT = 0x00;
 
 
     while(1)
@@ -74,7 +74,7 @@ int main(void)
 void initPWM(int duty) {
     TIMER_A0->CCR[0] = PWM_PER; // 20 ms period
     TIMER_A0->CCR[1] = duty * 64; // duty cycle
-    TIMER_A0->CCTL[OUTMOD] |= TIMER_A_CCTLN_OUTMOD_4;
+    TIMER_A0->CCTL[1] = TIMER_A_CCTLN_OUTMOD_4;
 
     // output PWM to
 }

@@ -37,8 +37,9 @@
 ******************************************************************************/
 
 #include "msp.h"
+#include <stdbool.h>
 
-#define PWM_PER (20 * 64)
+#define PWM_PER (20 * 16)
 
 void delay(int time); // in ms
 
@@ -50,6 +51,10 @@ void initGPIO(void);
 
 void initPWM(int duty);
 
+void initInterrupts(void);
+
+void TA0_N_IRQHandler(void);
+
 int main(void)
 {
     //init
@@ -58,8 +63,9 @@ int main(void)
 
     initGPIO();
     initClock();
+    initInterrupts();
     initTimerA();
-    initPWM(10);
+    initPWM(4);
 
     //int period, duty, i;
 
@@ -76,8 +82,9 @@ int main(void)
 
 void initPWM(int duty) {
     TIMER_A0->CCR[0] = PWM_PER; // 20 ms period
-    TIMER_A0->CCR[1] = duty * 64; // duty cycle
-    TIMER_A0->CCTL[1] = TIMER_A_CCTLN_OUTMOD_4;
+    TIMER_A0->CCR[1] = (duty << 4); // duty cycle
+    TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUTMOD_2;
+    TIMER_A0->CCTL[1] &= ~TIMER_A_CCTLN_OUT;
 
 
 }
@@ -90,6 +97,7 @@ void initClock(void) {
 }
 
 void initTimerA(void) {
+    TIMER_A0->CTL |= TIMER_A_CTL_CLR;
     TIMER_A0->CTL &= ~(TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__INCLK);
     TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;// CONFIG DE TIMER A; SOURCE = ACKL, MODE = UP/DOWN,
     TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CAP; // compare mode
@@ -100,6 +108,14 @@ void initGPIO(void) {
     P2->DIR = 0xFF;
     P2->SEL0 |= (0b1 << 4);
     P2->SEL1 &= ~(0b1 << 4);
+    P2->OUT = 0x00;
+}
+
+void initInterrupts(void){
+
+    NVIC_EnableIRQ(TA0_N_IRQn);
+    NVIC_SetPriority(TA0_N_IRQn,0);
+    TIMER_A0->CTL |= TIMER_A_CTL_IE;
 
 }
 
@@ -111,4 +127,20 @@ void delay(int time) {
 
     while((TIMER_A0->CTL & TIMER_A_CTL_IFG) == 0) ;
     TIMER_A0->CCR[0] = 0;// stop timer
+}
+
+void TA0_N_IRQHandler(void) {
+
+    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG;
+
+    bool on_off;
+    if(on_off) {
+        P2->OUT |= (1<<3);
+
+    } else {
+        P2->OUT &= ~(1<<3);
+
+    }
+    on_off = !on_off;
+
 }

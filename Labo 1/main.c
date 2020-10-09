@@ -46,6 +46,8 @@ void initClock(void);
 
 void initTimerA(void);
 
+void initGPIO(void);
+
 void initPWM(int duty);
 
 int main(void)
@@ -54,13 +56,14 @@ int main(void)
     // Stop the watchdog timer
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;
 
+    initGPIO();
     initClock();
     initTimerA();
     initPWM(10);
 
     //int period, duty, i;
 
-    //P2->DIR = 0xFF;
+
     //P2->OUT = 0x00;
 
 
@@ -76,7 +79,7 @@ void initPWM(int duty) {
     TIMER_A0->CCR[1] = duty * 64; // duty cycle
     TIMER_A0->CCTL[1] = TIMER_A_CCTLN_OUTMOD_4;
 
-    // output PWM to
+
 }
 
 void initClock(void) {
@@ -90,6 +93,14 @@ void initTimerA(void) {
     TIMER_A0->CTL &= ~(TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__INCLK);
     TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;// CONFIG DE TIMER A; SOURCE = ACKL, MODE = UP/DOWN,
     TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CAP; // compare mode
+}
+
+void initGPIO(void) {
+
+    P2->DIR = 0xFF;
+    P2->SEL0 |= (0b1 << 4);
+    P2->SEL1 &= ~(0b1 << 4);
+
 }
 
 void delay(int time) {

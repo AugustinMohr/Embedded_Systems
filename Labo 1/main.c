@@ -53,6 +53,8 @@ void initPWM(int duty);
 
 void initInterrupts(void);
 
+void initADC(void);
+
 void TA0_N_IRQHandler(void);
 
 int main(void)
@@ -66,6 +68,7 @@ int main(void)
     initInterrupts();
     initTimerA();
     initPWM(4);
+    initADC();
 
     //int period, duty, i;
 
@@ -83,7 +86,7 @@ int main(void)
 void initPWM(int duty) {
     TIMER_A0->CCR[0] = PWM_PER; // 20 ms period
     TIMER_A0->CCR[1] = (duty << 4); // duty cycle
-    TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUTMOD_2;
+    TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUTMOD_2; // Toggle/reset, acts here as Toggle/set for some reason
     TIMER_A0->CCTL[1] &= ~TIMER_A_CCTLN_OUT;
 
 
@@ -113,9 +116,16 @@ void initGPIO(void) {
 
 void initInterrupts(void){
 
-    NVIC_EnableIRQ(TA0_N_IRQn);
-    NVIC_SetPriority(TA0_N_IRQn,0);
-    TIMER_A0->CTL |= TIMER_A_CTL_IE;
+    NVIC_EnableIRQ(TA0_N_IRQn); // IRQ handler
+    NVIC_SetPriority(TA0_N_IRQn,0); // priority
+    TIMER_A0->CTL |= TIMER_A_CTL_IE; // Interrupt enable
+
+}
+
+void initADC(void){
+
+    P4->SEL0 |= 0b1;
+    P4->SEL1 |= 0b1; // sets p4.0 as A13
 
 }
 
@@ -131,7 +141,7 @@ void delay(int time) {
 
 void TA0_N_IRQHandler(void) {
 
-    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG;
+    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG; // reset interrupt flag
 
     bool on_off;
     if(on_off) {

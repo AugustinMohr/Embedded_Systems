@@ -49,13 +49,18 @@ void initTimerA(void);
 
 void initGPIO(void);
 
-void initPWM(int duty);
+void initPWM(float duty);
 
 void initInterrupts(void);
 
 void initADC(void);
 
 void TA0_N_IRQHandler(void);
+
+void ADC14_IRQHandler(void);
+
+
+uint16_t resultat;
 
 int main(void)
 {
@@ -66,9 +71,10 @@ int main(void)
     initGPIO();
     initClock();
     initInterrupts();
-    initTimerA();
-    initPWM(4);
     initADC();
+    initTimerA();
+    initPWM(1);
+
 
     //int period, duty, i;
 
@@ -79,15 +85,16 @@ int main(void)
     while(1)
     {
 
+
     }
-    return 0;
+    //return 0;
 }
 
-void initPWM(int duty) {
+void initPWM(float duty) {
     TIMER_A0->CCR[0] = PWM_PER; // 20 ms period
-    TIMER_A0->CCR[1] = (duty << 4); // duty cycle
+    TIMER_A0->CCR[1] = duty * 16; // duty cycle
     TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUTMOD_2; // Toggle/reset, acts here as Toggle/set for some reason
-    TIMER_A0->CCTL[1] &= ~TIMER_A_CCTLN_OUT;
+    TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUT;
 
 
 }
@@ -116,10 +123,12 @@ void initGPIO(void) {
 
 void initInterrupts(void){
 
-    NVIC_EnableIRQ(TA0_N_IRQn); // IRQ handler
-    NVIC_SetPriority(TA0_N_IRQn,0); // priority
-    TIMER_A0->CTL |= TIMER_A_CTL_IE; // Interrupt enable
-
+    NVIC_EnableIRQ(TA0_N_IRQn);         // IRQ handler
+    NVIC_SetPriority(TA0_N_IRQn,2);     // priority
+    TIMER_A0->CTL |= TIMER_A_CTL_IE;    // Interrupt enable
+    NVIC_EnableIRQ(ADC14_IRQn);         // IRQ handler
+    NVIC_SetPriority(ADC14_IRQn,0);     // priority
+    ADC14->IER0 |= ADC14_IER0_IE0;      //ADC register 0 Interrupt
 }
 
 void initADC(void){
@@ -127,30 +136,41 @@ void initADC(void){
     P4->SEL0 |= 0b1;
     P4->SEL1 |= 0b1; // sets p4.0 as A13
 
+
+    ADC14->CTL0 |= ADC14_CTL0_SSEL_2;       //select ACLK
+    ADC14->CTL0 |= ADC14_CTL0_SHP;          //sample and hold mode
+    ADC14->CTL0 |= ADC14_CTL0_SHS_0;        //SC mode
+    ADC14->CTL1 |= ADC14_CTL1_RES_3;        //16 clock conversion time
+    ADC14->CTL1 |= ADC14_CTL1_RES__14BIT;   //14bit resolution
+    ADC14->CTL0 |= ADC14_CTL0_ON;           //enables the ADC
+    ADC14->MCTL[0] |= ADC14_MCTLN_INCH_13;
+    ADC14->CTL0 |= ADC14_CTL0_ENC;
 }
 
 void delay(int time) {
 
-    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG; //reset interrupt flag
-    TIMER_A0->CTL |= TIMER_A_CTL_CLR; // clear timer A
-    TIMER_A0->CCR[0] = 64 * time; // fill compare register
+    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG;  //reset interrupt flag
+    TIMER_A0->CTL |= TIMER_A_CTL_CLR;   // clear timer A
+    TIMER_A0->CCR[0] = 64 * time;       // fill compare register
 
     while((TIMER_A0->CTL & TIMER_A_CTL_IFG) == 0) ;
-    TIMER_A0->CCR[0] = 0;// stop timer
+    TIMER_A0->CCR[0] = 0;               // stop timer
 }
 
 void TA0_N_IRQHandler(void) {
 
-    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG; // reset interrupt flag
+    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG;                  // reset interrupt flag
 
-    bool on_off;
-    if(on_off) {
-        P2->OUT |= (1<<3);
+    ADC14->CTL0 |= ADC14_CTL0_SC | ADC14_CTL0_ENC;      //start and enable conversion
 
-    } else {
-        P2->OUT &= ~(1<<3);
 
-    }
-    on_off = !on_off;
+}
+
+void ADC14_IRQHandler(void) {
+
+
+    resultat = (uint16_t)ADC14->MEM[0];
+    TIMER_A0->CCR[1] = 16 + (resultat >> 10) ; // 1ms + 0-1 ms depending on the adc
+
 
 }

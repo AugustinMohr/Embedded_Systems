@@ -40,6 +40,7 @@
 #include <stdbool.h>
 
 #define PWM_PER (20 * 16)
+#define ADC_PER (50 * 32)
 
 void delay(int time); // in ms
 
@@ -55,7 +56,7 @@ void initInterrupts(void);
 
 void initADC(void);
 
-void TA0_N_IRQHandler(void);
+void TA1_N_IRQHandler(void);
 
 void ADC14_IRQHandler(void);
 
@@ -111,6 +112,13 @@ void initTimerA(void) {
     TIMER_A0->CTL &= ~(TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__INCLK);
     TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;// CONFIG DE TIMER A; SOURCE = ACKL, MODE = UP/DOWN,
     TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CAP; // compare mode
+
+    TIMER_A1->CTL |= TIMER_A_CTL_CLR;
+    TIMER_A1->CTL &= ~(TIMER_A_CTL_MC__UP | TIMER_A_CTL_SSEL__INCLK);
+    TIMER_A1->CTL |= TIMER_A_CTL_MC__UP | TIMER_A_CTL_SSEL__ACLK;// CONFIG DE TIMER A; SOURCE = ACKL, MODE = UP/DOWN,
+    TIMER_A1->CCTL[0] &= ~TIMER_A_CCTLN_CAP; // compare mode
+
+    TIMER_A1->CCR[0] = ADC_PER; //50ms period
 }
 
 void initGPIO(void) {
@@ -123,9 +131,9 @@ void initGPIO(void) {
 
 void initInterrupts(void){
 
-    NVIC_EnableIRQ(TA0_N_IRQn);         // IRQ handler
-    NVIC_SetPriority(TA0_N_IRQn,2);     // priority
-    TIMER_A0->CTL |= TIMER_A_CTL_IE;    // Interrupt enable
+    NVIC_EnableIRQ(TA1_N_IRQn);         // IRQ handler
+    NVIC_SetPriority(TA1_N_IRQn,2);     // priority
+    TIMER_A1->CTL |= TIMER_A_CTL_IE;    // Interrupt enable
     NVIC_EnableIRQ(ADC14_IRQn);         // IRQ handler
     NVIC_SetPriority(ADC14_IRQn,0);     // priority
     ADC14->IER0 |= ADC14_IER0_IE0;      //ADC register 0 Interrupt
@@ -157,9 +165,9 @@ void delay(int time) {
     TIMER_A0->CCR[0] = 0;               // stop timer
 }
 
-void TA0_N_IRQHandler(void) {
+void TA1_N_IRQHandler(void) {
 
-    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG;                  // reset interrupt flag
+    TIMER_A1->CTL &= ~TIMER_A_CTL_IFG;                  // reset interrupt flag
 
     ADC14->CTL0 |= ADC14_CTL0_SC | ADC14_CTL0_ENC;      //start and enable conversion
 

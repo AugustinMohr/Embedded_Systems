@@ -21,41 +21,41 @@ use ieee.std_logic_1164.all;
 entity DE0_Nano_Soc_7_segment_extension is
     port(
         -- ADC
-        ADC_CONVST       : out   std_logic;
-        ADC_SCK          : out   std_logic;
-        ADC_SDI          : out   std_logic;
-        ADC_SDO          : in    std_logic;
+--        ADC_CONVST       : out   std_logic;
+--        ADC_SCK          : out   std_logic;
+--        ADC_SDI          : out   std_logic;
+--        ADC_SDO          : in    std_logic;
 
         -- ARDUINO
-        ARDUINO_IO       : inout std_logic_vector(15 downto 0);
-        ARDUINO_RESET_N  : inout std_logic;
+--        ARDUINO_IO       : inout std_logic_vector(15 downto 0);
+--        ARDUINO_RESET_N  : inout std_logic;
 
         -- CLOCK
-        FPGA_CLK1_50     : in    std_logic;
-        FPGA_CLK2_50     : in    std_logic;
-        FPGA_CLK3_50     : in    std_logic;
+			FPGA_CLK1_50     : in    std_logic;
+--        FPGA_CLK2_50     : in    std_logic;
+--        FPGA_CLK3_50     : in    std_logic;
 
         -- KEY
-        KEY_N            : in    std_logic_vector(1 downto 0);
+--        KEY_N            : in    std_logic_vector(1 downto 0);
 
         -- LED
-        LED              : out   std_logic_vector(7 downto 0);
+--        LED              : out   std_logic_vector(7 downto 0);
 
         -- SW
-        SW               : in    std_logic_vector(3 downto 0);
+--        SW               : in    std_logic_vector(3 downto 0);
 
         -- GPIO_0
-        GPIO_0           : inout std_logic_vector(35 downto 0);
+--        GPIO_0           : inout std_logic_vector(35 downto 0);
 
         -- Extension board 7 segments
         SelSeg           : out   std_logic_vector(7 downto 0);
         Reset_Led        : out   std_logic;
         nSelDig          : out   std_logic_vector(5 downto 0);
-        SwLed            : in    std_logic_vector(7 downto 0);
+--      SwLed            : in    std_logic_vector(7 downto 0);
         nButton          : in    std_logic_vector(3 downto 0);
         LedButton        : out   std_logic_vector(3 downto 0)
 
---        -- HPS
+        -- HPS
 --        HPS_CONV_USB_N   : inout std_logic;
 --        HPS_DDR3_ADDR    : out   std_logic_vector(14 downto 0);
 --        HPS_DDR3_BA      : out   std_logic_vector(2 downto 0);
@@ -109,22 +109,30 @@ end entity DE0_Nano_Soc_7_segment_extension;
 
 architecture rtl of DE0_Nano_Soc_7_segment_extension is
 
-	component system2_1 is
+	component system2_2 is
 		port(
-			clk_clk                          : in  std_logic                    := 'X'; -- clk
-			reset_reset_n                    : in  std_logic                    := 'X'; -- reset_n
-			custom_pio_0_external_connection_export : out std_logic_vector(7 downto 0)         -- export
+			clk_clk                                : in  std_logic                    := 'X';             -- clk
+			reset_reset_n                          : in  std_logic                    := 'X';             -- reset_n
+			a_7_segment_0_conduit_selseg_export    : out std_logic_vector(7 downto 0);                    -- export
+			a_7_segment_0_conduit_ledbutton_export : out std_logic_vector(3 downto 0);                    -- export
+			a_7_segment_0_conduit_nseldig_export   : out std_logic_vector(5 downto 0);                    -- export
+			a_7_segment_0_conduit_nbutton_export   : in  std_logic_vector(3 downto 0) := (others => 'X'); -- export
+			a_7_segment_0_conduit_reset_led_export : out std_logic                                        -- export
 		);
 
-end component system2_1;
+end component system2_2;
 
 begin
 
-u0 : component system2_1
+u0 : component system2_2
 		port map(
-			clk_clk                          => FPGA_CLK1_50,                          --                       clk.clk
-			reset_reset_n                    => nButton(0),                    --                     reset.reset_n
-			custom_pio_0_external_connection_export => LED  -- pio_0_external_connection.export
+			clk_clk                        				=> FPGA_CLK1_50,       			  -- clk.clk
+			reset_reset_n                   				=> nButton(0),                  -- reset.reset_n
+			a_7_segment_0_conduit_selseg_export			=> SelSeg,
+			a_7_segment_0_conduit_ledbutton_export 	=> LedButton,
+			a_7_segment_0_conduit_nseldig_export		=> nSelDig,
+			a_7_segment_0_conduit_nbutton_export 		=> nButton,
+			a_7_segment_0_conduit_reset_led_export		=> Reset_Led
 		);
 
 

@@ -4,35 +4,55 @@
 			"name" : "Top",
 			"pins" : [
 				{
-					"name" : "LED[0]",
+					"name" : "SelSeg[0]",
 					"strict" : false
 				},
 				{
-					"name" : "LED[1]",
+					"name" : "SelSeg[1]",
 					"strict" : false
 				},
 				{
-					"name" : "LED[2]",
+					"name" : "SelSeg[2]",
 					"strict" : false
 				},
 				{
-					"name" : "LED[3]",
+					"name" : "SelSeg[3]",
 					"strict" : false
 				},
 				{
-					"name" : "LED[4]",
+					"name" : "SelSeg[4]",
 					"strict" : false
 				},
 				{
-					"name" : "LED[5]",
+					"name" : "SelSeg[5]",
 					"strict" : false
 				},
 				{
-					"name" : "LED[6]",
+					"name" : "SelSeg[6]",
 					"strict" : false
 				},
 				{
-					"name" : "LED[7]",
+					"name" : "nSelDig[0]",
+					"strict" : false
+				},
+				{
+					"name" : "nSelDig[1]",
+					"strict" : false
+				},
+				{
+					"name" : "nSelDig[2]",
+					"strict" : false
+				},
+				{
+					"name" : "nSelDig[3]",
+					"strict" : false
+				},
+				{
+					"name" : "nSelDig[4]",
+					"strict" : false
+				},
+				{
+					"name" : "nSelDig[5]",
 					"strict" : false
 				},
 				{
@@ -40,7 +60,11 @@
 					"strict" : false
 				},
 				{
-					"name" : "KEY_N[0]",
+					"name" : "nButton[1]",
+					"strict" : false
+				},
+				{
+					"name" : "nButton[0]",
 					"strict" : false
 				}
 			]

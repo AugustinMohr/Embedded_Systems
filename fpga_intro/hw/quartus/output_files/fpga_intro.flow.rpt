@@ -1,5 +1,5 @@
 Flow report for fpga_intro
-Wed Nov 04 15:42:11 2020
+Mon Nov 09 19:16:00 2020
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -40,16 +40,16 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------------+
 ; Flow Summary                                                                  ;
 +---------------------------------+---------------------------------------------+
-; Flow Status                     ; Successful - Wed Nov 04 15:42:03 2020       ;
+; Flow Status                     ; Successful - Mon Nov 09 19:15:52 2020       ;
 ; Quartus Prime Version           ; 18.1.0 Build 625 09/12/2018 SJ Lite Edition ;
 ; Revision Name                   ; fpga_intro                                  ;
-; Top-level Entity Name           ; DE0_Nano_SoC_top_level                      ;
+; Top-level Entity Name           ; DE0_Nano_Soc_7_segment_extension            ;
 ; Family                          ; Cyclone V                                   ;
 ; Device                          ; 5CSEMA4U23C6                                ;
 ; Timing Models                   ; Final                                       ;
-; Logic utilization (in ALMs)     ; 1,446 / 15,880 ( 9 % )                      ;
-; Total registers                 ; 2116                                        ;
-; Total pins                      ; 11 / 314 ( 4 % )                            ;
+; Logic utilization (in ALMs)     ; 1,412 / 15,880 ( 9 % )                      ;
+; Total registers                 ; 2118                                        ;
+; Total pins                      ; 24 / 314 ( 8 % )                            ;
 ; Total virtual pins              ; 0                                           ;
 ; Total block memory bits         ; 1,112,320 / 2,764,800 ( 40 % )              ;
 ; Total DSP Blocks                ; 3 / 84 ( 4 % )                              ;
@@ -67,28 +67,28 @@ refer to the applicable agreement for further details.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 11/04/2020 15:39:16 ;
+; Start date & time ; 11/09/2020 19:13:17 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; fpga_intro          ;
 +-------------------+---------------------+
 
 
-+------------------------------------------------------------------------------------------------------------------------------------+
-; Flow Non-Default Global Settings                                                                                                   ;
-+-------------------------------------+----------------------------------------+---------------+------------------------+------------+
-; Assignment Name                     ; Value                                  ; Default Value ; Entity Name            ; Section Id ;
-+-------------------------------------+----------------------------------------+---------------+------------------------+------------+
-; COMPILER_SIGNATURE_ID               ; 233497588526301.160450075500924        ; --            ; --                     ; --         ;
-; MAX_CORE_JUNCTION_TEMP              ; 85                                     ; --            ; --                     ; --         ;
-; MIN_CORE_JUNCTION_TEMP              ; 0                                      ; --            ; --                     ; --         ;
-; PARTITION_COLOR                     ; -- (Not supported for targeted family) ; --            ; DE0_Nano_SoC_top_level ; Top        ;
-; PARTITION_FITTER_PRESERVATION_LEVEL ; -- (Not supported for targeted family) ; --            ; DE0_Nano_SoC_top_level ; Top        ;
-; PARTITION_NETLIST_TYPE              ; -- (Not supported for targeted family) ; --            ; DE0_Nano_SoC_top_level ; Top        ;
-; POWER_BOARD_THERMAL_MODEL           ; None (CONSERVATIVE)                    ; --            ; --                     ; --         ;
-; POWER_PRESET_COOLING_SOLUTION       ; 23 MM HEAT SINK WITH 200 LFPM AIRFLOW  ; --            ; --                     ; --         ;
-; PROJECT_OUTPUT_DIRECTORY            ; output_files                           ; --            ; --                     ; --         ;
-; TOP_LEVEL_ENTITY                    ; DE0_Nano_SoC_top_level                 ; fpga_intro    ; --                     ; --         ;
-+-------------------------------------+----------------------------------------+---------------+------------------------+------------+
++----------------------------------------------------------------------------------------------------------------------------------------------+
+; Flow Non-Default Global Settings                                                                                                             ;
++-------------------------------------+----------------------------------------+---------------+----------------------------------+------------+
+; Assignment Name                     ; Value                                  ; Default Value ; Entity Name                      ; Section Id ;
++-------------------------------------+----------------------------------------+---------------+----------------------------------+------------+
+; COMPILER_SIGNATURE_ID               ; 233497588526301.160494559709832        ; --            ; --                               ; --         ;
+; MAX_CORE_JUNCTION_TEMP              ; 85                                     ; --            ; --                               ; --         ;
+; MIN_CORE_JUNCTION_TEMP              ; 0                                      ; --            ; --                               ; --         ;
+; PARTITION_COLOR                     ; -- (Not supported for targeted family) ; --            ; DE0_Nano_Soc_7_segment_extension ; Top        ;
+; PARTITION_FITTER_PRESERVATION_LEVEL ; -- (Not supported for targeted family) ; --            ; DE0_Nano_Soc_7_segment_extension ; Top        ;
+; PARTITION_NETLIST_TYPE              ; -- (Not supported for targeted family) ; --            ; DE0_Nano_Soc_7_segment_extension ; Top        ;
+; POWER_BOARD_THERMAL_MODEL           ; None (CONSERVATIVE)                    ; --            ; --                               ; --         ;
+; POWER_PRESET_COOLING_SOLUTION       ; 23 MM HEAT SINK WITH 200 LFPM AIRFLOW  ; --            ; --                               ; --         ;
+; PROJECT_OUTPUT_DIRECTORY            ; output_files                           ; --            ; --                               ; --         ;
+; TOP_LEVEL_ENTITY                    ; DE0_Nano_Soc_7_segment_extension       ; fpga_intro    ; --                               ; --         ;
++-------------------------------------+----------------------------------------+---------------+----------------------------------+------------+
 
 
 +--------------------------------------------------------------------------------------------------------------------------+
@@ -96,11 +96,11 @@ refer to the applicable agreement for further details.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:01:14     ; 1.0                     ; 5046 MB             ; 00:01:58                           ;
-; Fitter               ; 00:01:22     ; 1.2                     ; 6810 MB             ; 00:08:32                           ;
-; Assembler            ; 00:00:05     ; 1.0                     ; 4861 MB             ; 00:00:05                           ;
-; Timing Analyzer      ; 00:00:07     ; 2.6                     ; 5199 MB             ; 00:00:16                           ;
-; Total                ; 00:02:48     ; --                      ; --                  ; 00:10:51                           ;
+; Analysis & Synthesis ; 00:00:52     ; 1.0                     ; 5033 MB             ; 00:01:39                           ;
+; Fitter               ; 00:01:32     ; 1.2                     ; 6774 MB             ; 00:07:45                           ;
+; Assembler            ; 00:00:06     ; 1.0                     ; 4860 MB             ; 00:00:05                           ;
+; Timing Analyzer      ; 00:00:07     ; 2.7                     ; 5199 MB             ; 00:00:17                           ;
+; Total                ; 00:02:37     ; --                      ; --                  ; 00:09:46                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 

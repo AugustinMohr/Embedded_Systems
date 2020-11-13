@@ -9,16 +9,16 @@ preplace inst system2_2.nios2_gen2_0.cpu -pg 1
 preplace inst system2_2.nios2_gen2_0.clock_bridge -pg 1
 preplace inst system2_2.a_7_Segment_0 -pg 1 -lvl 3 -y 350
 preplace inst system2_2.jtag_uart_0 -pg 1 -lvl 3 -y 90
+preplace netloc INTERCONNECT<net_container>system2_2</net_container>(SLAVE)onchip_memory2_0.reset1,(SLAVE)jtag_uart_0.reset,(SLAVE)a_7_Segment_0.reset_sink,(MASTER)clk_0.clk_reset,(MASTER)nios2_gen2_0.debug_reset_request,(SLAVE)nios2_gen2_0.reset) 1 1 2 430 70 810
 preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)clk_0.clk_in_reset,(SLAVE)system2_2.reset) 1 0 1 NJ
 preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)system2_2.clk,(SLAVE)clk_0.clk_in) 1 0 1 NJ
+preplace netloc INTERCONNECT<net_container>system2_2</net_container>(SLAVE)jtag_uart_0.avalon_jtag_slave,(SLAVE)onchip_memory2_0.s1,(MASTER)nios2_gen2_0.data_master,(MASTER)nios2_gen2_0.instruction_master,(SLAVE)a_7_Segment_0.avalon_slave_0,(SLAVE)nios2_gen2_0.debug_mem_slave) 1 1 2 450 50 830
+preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)a_7_Segment_0.conduit_LedButton,(SLAVE)system2_2.a_7_segment_0_conduit_ledbutton) 1 0 3 NJ 400 NJ 400 NJ
 preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)a_7_Segment_0.conduit_Reset_Led,(SLAVE)system2_2.a_7_segment_0_conduit_reset_led) 1 0 3 NJ 420 NJ 420 NJ
-preplace netloc FAN_OUT<net_container>system2_2</net_container>(SLAVE)jtag_uart_0.clk,(SLAVE)onchip_memory2_0.clk1,(SLAVE)a_7_Segment_0.clock,(MASTER)clk_0.clk,(SLAVE)nios2_gen2_0.clk) 1 1 2 410 30 870
-preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)system2_2.a_7_segment_0_conduit_selseg,(SLAVE)a_7_Segment_0.conduit_SelSeg) 1 0 3 NJ 440 NJ 440 NJ
+preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)a_7_Segment_0.conduit_SelSeg,(SLAVE)system2_2.a_7_segment_0_conduit_selseg) 1 0 3 NJ 440 NJ 440 NJ
 preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)a_7_Segment_0.conduit_nSelDig,(SLAVE)system2_2.a_7_segment_0_conduit_nseldig) 1 0 3 NJ 480 NJ 480 NJ
 preplace netloc POINT_TO_POINT<net_container>system2_2</net_container>(MASTER)nios2_gen2_0.irq,(SLAVE)jtag_uart_0.irq) 1 2 1 850
-preplace netloc INTERCONNECT<net_container>system2_2</net_container>(SLAVE)jtag_uart_0.avalon_jtag_slave,(SLAVE)nios2_gen2_0.debug_mem_slave,(MASTER)nios2_gen2_0.instruction_master,(SLAVE)onchip_memory2_0.s1,(SLAVE)a_7_Segment_0.avalon_slave_0,(MASTER)nios2_gen2_0.data_master) 1 1 2 450 50 830
-preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)a_7_Segment_0.conduit_nButton,(SLAVE)system2_2.a_7_segment_0_conduit_nbutton) 1 0 3 NJ 460 NJ 460 NJ
-preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)system2_2.a_7_segment_0_conduit_ledbutton,(SLAVE)a_7_Segment_0.conduit_LedButton) 1 0 3 NJ 400 NJ 400 NJ
-preplace netloc INTERCONNECT<net_container>system2_2</net_container>(SLAVE)jtag_uart_0.reset,(MASTER)nios2_gen2_0.debug_reset_request,(SLAVE)nios2_gen2_0.reset,(SLAVE)onchip_memory2_0.reset1,(SLAVE)a_7_Segment_0.reset_sink,(MASTER)clk_0.clk_reset) 1 1 2 430 70 810
+preplace netloc EXPORT<net_container>system2_2</net_container>(SLAVE)system2_2.a_7_segment_0_conduit_nbutton,(SLAVE)a_7_Segment_0.conduit_nButton) 1 0 3 NJ 460 NJ 460 NJ
+preplace netloc FAN_OUT<net_container>system2_2</net_container>(SLAVE)a_7_Segment_0.clock,(SLAVE)jtag_uart_0.clk,(MASTER)clk_0.clk,(SLAVE)onchip_memory2_0.clk1,(SLAVE)nios2_gen2_0.clk) 1 1 2 410 30 870
 levelinfo -pg 1 0 200 1070
 levelinfo -hier system2_2 210 240 570 920 1060

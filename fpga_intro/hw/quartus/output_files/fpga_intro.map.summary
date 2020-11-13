@@ -1,10 +1,10 @@
-Analysis & Synthesis Status : Successful - Mon Nov 09 19:14:11 2020
+Analysis & Synthesis Status : Successful - Fri Nov 13 17:57:49 2020
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : fpga_intro
 Top-level Entity Name : DE0_Nano_Soc_7_segment_extension
 Family : Cyclone V
 Logic utilization (in ALMs) : N/A
-Total registers : 2087
+Total registers : 2191
 Total pins : 24
 Total virtual pins : 0
 Total block memory bits : 1,112,320

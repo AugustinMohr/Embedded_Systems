@@ -34,6 +34,9 @@ module system2_2 (
 	wire         mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read;        // mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_read -> jtag_uart_0:av_read_n
 	wire         mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write;       // mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_write -> jtag_uart_0:av_write_n
 	wire  [31:0] mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_writedata;   // mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_writedata -> jtag_uart_0:av_writedata
+	wire  [31:0] mm_interconnect_0_a_7_segment_0_avalon_slave_0_readdata;     // a_7_Segment_0:readdata -> mm_interconnect_0:a_7_Segment_0_avalon_slave_0_readdata
+	wire   [1:0] mm_interconnect_0_a_7_segment_0_avalon_slave_0_address;      // mm_interconnect_0:a_7_Segment_0_avalon_slave_0_address -> a_7_Segment_0:address
+	wire         mm_interconnect_0_a_7_segment_0_avalon_slave_0_read;         // mm_interconnect_0:a_7_Segment_0_avalon_slave_0_read -> a_7_Segment_0:read
 	wire         mm_interconnect_0_a_7_segment_0_avalon_slave_0_write;        // mm_interconnect_0:a_7_Segment_0_avalon_slave_0_write -> a_7_Segment_0:write
 	wire  [31:0] mm_interconnect_0_a_7_segment_0_avalon_slave_0_writedata;    // mm_interconnect_0:a_7_Segment_0_avalon_slave_0_writedata -> a_7_Segment_0:writedata
 	wire  [31:0] mm_interconnect_0_nios2_gen2_0_debug_mem_slave_readdata;     // nios2_gen2_0:debug_mem_slave_readdata -> mm_interconnect_0:nios2_gen2_0_debug_mem_slave_readdata
@@ -61,6 +64,9 @@ module system2_2 (
 		.clk       (clk_clk),                                                  //             clock.clk
 		.write     (mm_interconnect_0_a_7_segment_0_avalon_slave_0_write),     //    avalon_slave_0.write
 		.writedata (mm_interconnect_0_a_7_segment_0_avalon_slave_0_writedata), //                  .writedata
+		.read      (mm_interconnect_0_a_7_segment_0_avalon_slave_0_read),      //                  .read
+		.readdata  (mm_interconnect_0_a_7_segment_0_avalon_slave_0_readdata),  //                  .readdata
+		.address   (mm_interconnect_0_a_7_segment_0_avalon_slave_0_address),   //                  .address
 		.nReset    (~rst_controller_reset_out_reset),                          //        reset_sink.reset_n
 		.SelSeg    (a_7_segment_0_conduit_selseg_export),                      //    conduit_SelSeg.export
 		.LedButton (a_7_segment_0_conduit_ledbutton_export),                   // conduit_LedButton.export
@@ -144,7 +150,10 @@ module system2_2 (
 		.nios2_gen2_0_instruction_master_read           (nios2_gen2_0_instruction_master_read),                        //                                         .read
 		.nios2_gen2_0_instruction_master_readdata       (nios2_gen2_0_instruction_master_readdata),                    //                                         .readdata
 		.nios2_gen2_0_instruction_master_readdatavalid  (nios2_gen2_0_instruction_master_readdatavalid),               //                                         .readdatavalid
-		.a_7_Segment_0_avalon_slave_0_write             (mm_interconnect_0_a_7_segment_0_avalon_slave_0_write),        //             a_7_Segment_0_avalon_slave_0.write
+		.a_7_Segment_0_avalon_slave_0_address           (mm_interconnect_0_a_7_segment_0_avalon_slave_0_address),      //             a_7_Segment_0_avalon_slave_0.address
+		.a_7_Segment_0_avalon_slave_0_write             (mm_interconnect_0_a_7_segment_0_avalon_slave_0_write),        //                                         .write
+		.a_7_Segment_0_avalon_slave_0_read              (mm_interconnect_0_a_7_segment_0_avalon_slave_0_read),         //                                         .read
+		.a_7_Segment_0_avalon_slave_0_readdata          (mm_interconnect_0_a_7_segment_0_avalon_slave_0_readdata),     //                                         .readdata
 		.a_7_Segment_0_avalon_slave_0_writedata         (mm_interconnect_0_a_7_segment_0_avalon_slave_0_writedata),    //                                         .writedata
 		.jtag_uart_0_avalon_jtag_slave_address          (mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_address),     //            jtag_uart_0_avalon_jtag_slave.address
 		.jtag_uart_0_avalon_jtag_slave_write            (mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write),       //                                         .write

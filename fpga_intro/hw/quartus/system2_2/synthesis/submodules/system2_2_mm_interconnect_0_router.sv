@@ -134,7 +134,7 @@ module system2_2_mm_interconnect_0_router
     // Figure out the number of bits to mask off for each slave span
     // during address decoding
     // -------------------------------------------------------
-    localparam PAD0 = log2ceil(64'h4 - 64'h0); 
+    localparam PAD0 = log2ceil(64'h10 - 64'h0); 
     localparam PAD1 = log2ceil(64'h40000 - 64'h20000); 
     localparam PAD2 = log2ceil(64'h41000 - 64'h40800); 
     localparam PAD3 = log2ceil(64'h41018 - 64'h41010); 
@@ -172,11 +172,6 @@ module system2_2_mm_interconnect_0_router
 
 
 
-    // -------------------------------------------------------
-    // Write and read transaction signals
-    // -------------------------------------------------------
-    wire write_transaction;
-    assign write_transaction = sink_data[PKT_TRANS_WRITE];
 
 
     system2_2_mm_interconnect_0_router_default_decode the_default_decode(
@@ -196,8 +191,8 @@ module system2_2_mm_interconnect_0_router
         // Sets the channel and destination ID based on the address
         // --------------------------------------------------
 
-    // ( 0x0 .. 0x4 )
-    if ( {address[RG:PAD0],{PAD0{1'b0}}} == 19'h0  && write_transaction  ) begin
+    // ( 0x0 .. 0x10 )
+    if ( {address[RG:PAD0],{PAD0{1'b0}}} == 19'h0   ) begin
             src_channel = 4'b0010;
             src_data[PKT_DEST_ID_H:PKT_DEST_ID_L] = 0;
     end

@@ -23,7 +23,10 @@ module system2_2_mm_interconnect_0 (
 		input  wire        nios2_gen2_0_instruction_master_read,           //                                         .read
 		output wire [31:0] nios2_gen2_0_instruction_master_readdata,       //                                         .readdata
 		output wire        nios2_gen2_0_instruction_master_readdatavalid,  //                                         .readdatavalid
-		output wire        a_7_Segment_0_avalon_slave_0_write,             //             a_7_Segment_0_avalon_slave_0.write
+		output wire [1:0]  a_7_Segment_0_avalon_slave_0_address,           //             a_7_Segment_0_avalon_slave_0.address
+		output wire        a_7_Segment_0_avalon_slave_0_write,             //                                         .write
+		output wire        a_7_Segment_0_avalon_slave_0_read,              //                                         .read
+		input  wire [31:0] a_7_Segment_0_avalon_slave_0_readdata,          //                                         .readdata
 		output wire [31:0] a_7_Segment_0_avalon_slave_0_writedata,         //                                         .writedata
 		output wire [0:0]  jtag_uart_0_avalon_jtag_slave_address,          //            jtag_uart_0_avalon_jtag_slave.address
 		output wire        jtag_uart_0_avalon_jtag_slave_write,            //                                         .write
@@ -567,7 +570,7 @@ module system2_2_mm_interconnect_0 (
 	);
 
 	altera_merlin_slave_translator #(
-		.AV_ADDRESS_W                   (1),
+		.AV_ADDRESS_W                   (2),
 		.AV_DATA_W                      (32),
 		.UAV_DATA_W                     (32),
 		.AV_BURSTCOUNT_W                (1),
@@ -606,11 +609,11 @@ module system2_2_mm_interconnect_0 (
 		.uav_writedata          (a_7_segment_0_avalon_slave_0_agent_m0_writedata),     //                         .writedata
 		.uav_lock               (a_7_segment_0_avalon_slave_0_agent_m0_lock),          //                         .lock
 		.uav_debugaccess        (a_7_segment_0_avalon_slave_0_agent_m0_debugaccess),   //                         .debugaccess
-		.av_write               (a_7_Segment_0_avalon_slave_0_write),                  //      avalon_anti_slave_0.write
+		.av_address             (a_7_Segment_0_avalon_slave_0_address),                //      avalon_anti_slave_0.address
+		.av_write               (a_7_Segment_0_avalon_slave_0_write),                  //                         .write
+		.av_read                (a_7_Segment_0_avalon_slave_0_read),                   //                         .read
+		.av_readdata            (a_7_Segment_0_avalon_slave_0_readdata),               //                         .readdata
 		.av_writedata           (a_7_Segment_0_avalon_slave_0_writedata),              //                         .writedata
-		.av_address             (),                                                    //              (terminated)
-		.av_read                (),                                                    //              (terminated)
-		.av_readdata            (32'b11011110101011011101111010101101),                //              (terminated)
 		.av_begintransfer       (),                                                    //              (terminated)
 		.av_beginbursttransfer  (),                                                    //              (terminated)
 		.av_burstcount          (),                                                    //              (terminated)

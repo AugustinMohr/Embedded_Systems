@@ -1,12 +1,12 @@
-Fitter Status : Successful - Mon Nov 09 19:15:44 2020
+Fitter Status : Successful - Fri Nov 13 17:59:06 2020
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : fpga_intro
 Top-level Entity Name : DE0_Nano_Soc_7_segment_extension
 Family : Cyclone V
 Device : 5CSEMA4U23C6
 Timing Models : Final
-Logic utilization (in ALMs) : 1,412 / 15,880 ( 9 % )
-Total registers : 2118
+Logic utilization (in ALMs) : 1,468 / 15,880 ( 9 % )
+Total registers : 2237
 Total pins : 24 / 314 ( 8 % )
 Total virtual pins : 0
 Total block memory bits : 1,112,320 / 2,764,800 ( 40 % )

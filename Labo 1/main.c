@@ -42,7 +42,7 @@
 #define PWM_PER (20 * 16)
 #define ADC_PER (50 * 32)
 
-
+void delay(int time); // in ms
 
 void initClock(void);
 
@@ -63,18 +63,24 @@ void ADC14_IRQHandler(void);
 
 uint16_t resultat;
 
-int main(void){
-
+int main(void)
+{
+    //init
     // Stop the watchdog timer
     WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;
 
-    //init
     initGPIO();
     initClock();
+    initInterrupts();
     initADC();
     initTimerA();
-    initPWM(1.5);
-    initInterrupts();
+    initPWM(1);
+
+
+    //int period, duty, i;
+
+
+    //P2->OUT = 0x00;
 
 
     while(1)
@@ -82,49 +88,37 @@ int main(void){
 
 
     }
-
+    //return 0;
 }
 
 void initPWM(float duty) {
+    TIMER_A0->CCR[0] = PWM_PER; // 20 ms period
+    TIMER_A0->CCR[1] = duty * 16; // duty cycle
+    TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUTMOD_2; // Toggle/reset, acts here as Toggle/set for some reason
+    TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUT;
 
-    TIMER_A0->CCR[0] = PWM_PER;                             // 20 ms period
-    TIMER_A0->CCR[1] = duty * 16;                           // duty cycle
-    TIMER_A0->CCTL[1] &= ~TIMER_A_CCTLN_OUTMOD_MASK;
-    TIMER_A0->CCTL[1] |= TIMER_A_CCTLN_OUTMOD_2;            // Toggle/reset, acts here as Toggle/set for some reason
 
 }
 
 void initClock(void) {
     CS->KEY = CS_KEY_VAL;
-    CS->CLKEN |= CS_CLKEN_ACLK_EN;      // ENABLE DE ACKL
-    CS->CLKEN |= CS_CLKEN_REFO_EN;      // ENABLE REFO OSCILLATOR
-    CS->CLKEN |= CS_CLKEN_REFOFSEL;     // FREQUENCY = 128 kHz
-    CS->CTL1 &= ~CS_CTL1_DIVA_MASK;
-    CS->CTL1 |= CS_CTL1_DIVA_0;
-    CS->KEY = 0x00000000;
+    CS->CLKEN |= CS_CLKEN_ACLK_EN;   // ENABLE DE ACKL
+    //CS->CTL1 |= CS_CTL1_SELA__REFOCLK | CS_CTL1_DIVA__64; // SOURCE = REFO, DIV = 64
+    CS->CLKEN |= CS_CLKEN_REFOFSEL; // FREQUENCY = 128 kHz
 }
 
 void initTimerA(void) {
     TIMER_A0->CTL |= TIMER_A_CTL_CLR;
-    TIMER_A0->CTL &= ~TIMER_A_CTL_MC_MASK;
-    TIMER_A0->CTL &= ~TIMER_A_CTL_ID_MASK;
-    TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;       // CONFIG DE TIMER A0; SOURCE = ACKL, MODE = UP/DOWN
-    TIMER_A0->CTL |= TIMER_A_CTL_ID_0;
-    TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CAP;                                // compare mode
-    TIMER_A0->EX0 &= ~TIMER_A_EX0_IDEX_MASK;
-    TIMER_A0->EX0 |= TIMER_A_EX0_TAIDEX_0;
+    TIMER_A0->CTL &= ~(TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__INCLK);
+    TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN | TIMER_A_CTL_SSEL__ACLK;// CONFIG DE TIMER A; SOURCE = ACKL, MODE = UP/DOWN,
+    TIMER_A0->CCTL[0] &= ~TIMER_A_CCTLN_CAP; // compare mode
 
     TIMER_A1->CTL |= TIMER_A_CTL_CLR;
-    TIMER_A1->CTL &= ~TIMER_A_CTL_MC_MASK;
-    TIMER_A1->CTL &= ~TIMER_A_CTL_ID_MASK;
-    TIMER_A1->CTL |= TIMER_A_CTL_MC__UP | TIMER_A_CTL_SSEL__ACLK;           // CONFIG DE TIMER A1; SOURCE = ACKL, MODE = UP
-    TIMER_A1->CTL |= TIMER_A_CTL_ID_0;
-    TIMER_A1->CCTL[0] &= ~TIMER_A_CCTLN_CAP;                                // compare mode
-    TIMER_A1->EX0 &= ~TIMER_A_EX0_IDEX_MASK;
-    TIMER_A1->EX0 |= TIMER_A_EX0_TAIDEX_0;
+    TIMER_A1->CTL &= ~(TIMER_A_CTL_MC__UP | TIMER_A_CTL_SSEL__INCLK);
+    TIMER_A1->CTL |= TIMER_A_CTL_MC__UP | TIMER_A_CTL_SSEL__ACLK;// CONFIG DE TIMER A; SOURCE = ACKL, MODE = UP/DOWN,
+    TIMER_A1->CCTL[0] &= ~TIMER_A_CCTLN_CAP; // compare mode
 
-
-    TIMER_A1->CCR[0] = ADC_PER;                                             // 50ms period
+    TIMER_A1->CCR[0] = ADC_PER; //50ms period
 }
 
 void initGPIO(void) {
@@ -132,45 +126,50 @@ void initGPIO(void) {
     P2->DIR = 0xFF;
     P2->SEL0 |= (0b1 << 4);
     P2->SEL1 &= ~(0b1 << 4);
-
-    P4->SEL0 |= 0b1;
-    P4->SEL1 |= 0b1; // sets p4.0 as A13
-
-
+    P2->OUT = 0x00;
 }
 
 void initInterrupts(void){
 
     NVIC_EnableIRQ(TA1_N_IRQn);         // IRQ handler
-    NVIC_SetPriority(TA1_N_IRQn,0);     // priority
+    NVIC_SetPriority(TA1_N_IRQn,2);     // priority
     TIMER_A1->CTL |= TIMER_A_CTL_IE;    // Interrupt enable
     NVIC_EnableIRQ(ADC14_IRQn);         // IRQ handler
     NVIC_SetPriority(ADC14_IRQn,0);     // priority
-    ADC14->IER0 |= ADC14_IER0_IE0;      // ADC register 0 Interrupt
+    ADC14->IER0 |= ADC14_IER0_IE0;      //ADC register 0 Interrupt
 }
 
 void initADC(void){
 
+    P4->SEL0 |= 0b1;
+    P4->SEL1 |= 0b1; // sets p4.0 as A13
 
-    ADC14->CTL0 &= ~ADC14_CTL0_SSEL_MASK;
-    ADC14->CTL0 |= ADC14_CTL0_SSEL_2;       // select ACLK
-    ADC14->CTL0 |= ADC14_CTL0_SHP;          // sample and hold mode
-    ADC14->CTL0 &= ~ADC14_CTL0_SHS_MASK;
-    ADC14->CTL0 |= ADC14_CTL0_SHS_0;        // SC mode
-    ADC14->CTL1 &= ~ADC14_CTL1_RES_MASK;
-    ADC14->CTL1 |= ADC14_CTL1_RES__14BIT;   // 14bit resolution, 16 clock ticks sampling time
-    ADC14->CTL0 |= ADC14_CTL0_ON;           // enables the ADC
+
+    ADC14->CTL0 |= ADC14_CTL0_SSEL_2;       //select ACLK
+    ADC14->CTL0 |= ADC14_CTL0_SHP;          //sample and hold mode
+    ADC14->CTL0 |= ADC14_CTL0_SHS_0;        //SC mode
+    ADC14->CTL1 |= ADC14_CTL1_RES_3;        //16 clock conversion time
+    ADC14->CTL1 |= ADC14_CTL1_RES__14BIT;   //14bit resolution
+    ADC14->CTL0 |= ADC14_CTL0_ON;           //enables the ADC
     ADC14->MCTL[0] |= ADC14_MCTLN_INCH_13;
     ADC14->CTL0 |= ADC14_CTL0_ENC;
 }
 
+void delay(int time) {
 
+    TIMER_A0->CTL &= ~TIMER_A_CTL_IFG;  //reset interrupt flag
+    TIMER_A0->CTL |= TIMER_A_CTL_CLR;   // clear timer A
+    TIMER_A0->CCR[0] = 64 * time;       // fill compare register
+
+    while((TIMER_A0->CTL & TIMER_A_CTL_IFG) == 0) ;
+    TIMER_A0->CCR[0] = 0;               // stop timer
+}
 
 void TA1_N_IRQHandler(void) {
 
     TIMER_A1->CTL &= ~TIMER_A_CTL_IFG;                  // reset interrupt flag
 
-    ADC14->CTL0 |= ADC14_CTL0_SC;                       // start conversion
+    ADC14->CTL0 |= ADC14_CTL0_SC | ADC14_CTL0_ENC;      //start and enable conversion
 
 
 }
@@ -179,7 +178,7 @@ void ADC14_IRQHandler(void) {
 
 
     resultat = (uint16_t)ADC14->MEM[0];
-    TIMER_A0->CCR[1] = 16 + (resultat >> 10); // 1ms + 0-1 ms depending on the adc
+    TIMER_A0->CCR[1] = 16 + (resultat >> 10) ; // 1ms + 0-1 ms depending on the adc
 
 
 }

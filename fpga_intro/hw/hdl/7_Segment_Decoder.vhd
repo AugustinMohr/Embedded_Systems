@@ -102,7 +102,7 @@ begin
 	
 	
 	
-	-- Decoding min/sec/centi to the displayed hex_num
+	-- Decoding min/sec/centi/hours/cpu_disp to the displayed hex_num
 	
 	process(clk, nReset)
 	begin

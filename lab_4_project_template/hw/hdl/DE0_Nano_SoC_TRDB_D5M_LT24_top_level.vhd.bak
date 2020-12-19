@@ -44,12 +44,12 @@ entity DE0_Nano_SoC_TRDB_D5M_LT24_top_level is
         SW : in std_logic_vector(3 downto 0);
 
         -- GPIO_0
-        --GPIO_0_LT24_ADC_BUSY     : in  std_logic;
-        --GPIO_0_LT24_ADC_CS_N     : out std_logic;
-        --GPIO_0_LT24_ADC_DCLK     : out std_logic;
-        --GPIO_0_LT24_ADC_DIN      : out std_logic;
-        --GPIO_0_LT24_ADC_DOUT     : in  std_logic;
-        --GPIO_0_LT24_ADC_PENIRQ_N : in  std_logic;
+        GPIO_0_LT24_ADC_BUSY     : in  std_logic;
+        GPIO_0_LT24_ADC_CS_N     : out std_logic;
+        GPIO_0_LT24_ADC_DCLK     : out std_logic;
+        GPIO_0_LT24_ADC_DIN      : out std_logic;
+        GPIO_0_LT24_ADC_DOUT     : in  std_logic;
+        GPIO_0_LT24_ADC_PENIRQ_N : in  std_logic;
         GPIO_0_LT24_CS_N         : out std_logic;
         GPIO_0_LT24_D            : out std_logic_vector(15 downto 0);
         GPIO_0_LT24_LCD_ON       : out std_logic;

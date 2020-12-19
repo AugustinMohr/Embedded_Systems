@@ -68,7 +68,21 @@ begin
 		LCD_command  <= (others => '0');
 		LDC_data  <= (others => '0');
 	elsif rising_edge(clk) then
-
+		if AS_CS = '1' and AS_write = '1' then
+			case AS_address is
+			when "0000" => buffer_address <= AS_writedata;
+			when "0001" => buffer_length  <= AS_writedata;
+			when "0010" => LCD_command		<= AS_writedata;
+			when "0011" => LCD_data			<= AS_writedata;
+			when "0100" =>
+			when "0101" =>
+			when "0110" =>
+			when "0111" =>
+			when "1000" =>
+			when others => null;
+			end case;
+		end if;
+	end if;	
 
 end process Avalon_slave_write;
 
@@ -114,7 +128,7 @@ begin
 	end if;
 
 
-end process LCD_controller
+end process LCD_controller;
 
 	
 end comp;	

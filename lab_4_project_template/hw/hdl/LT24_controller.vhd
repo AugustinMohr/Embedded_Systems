@@ -52,6 +52,7 @@ signal buffer_address 	: unsigned(31 DOWNTO 0);
 signal buffer_length  	: unsigned(31 DOWNTO 0);
 signal LCD_command		: unsigned(7 DOWNTO 0);
 signal LCD_data			: unsigned(15 DOWNTO 0);
+signal command_mode		: std_logic;
 
 signal CntAddress			: unsigned(31 DOWNTO 0);
 signal CntLength			: unsigned(31 DOWNTO 0);
@@ -59,7 +60,7 @@ signal NewData 			: std_logic;
 
 --States of FSM
 
-type LCD_states is (idle, begin_transfer, write_command, write_data, read_data);
+type LCD_states is (idle, begin_transfer, write_command, write_data, read_data, wait_acq, wait_command);
 signal LCD_state	: LCD_states;
 
 type AM_states is(AM_idle, AM_wait_data, AM_write_data, AM_acq_data);
@@ -108,10 +109,10 @@ begin
 	if rising_edge(clk) then
 		if AS_CS  = '1' and AS_read = '1' then
 			case AS_address is
-				when "0000" => 
-				when "0001" => 
-				when "0010" => 
-				when "0011" => 
+				when "0000" => AS_readdata <= buffer_address;
+				when "0001" => AS_readdata <= buffer_length;
+				when "0010" => AS_readdata <= LCD_command;
+				when "0011" => AS_readdata <= LCD_data;
 				when "0100" =>
 				when "0101" =>
 				when "0110" =>
@@ -194,6 +195,8 @@ end process Avalon_master;
 
 
 
+--LCD controller FSM
+
 LCD_controller : process(clk, nReset)
 begin
 	if nReset = '0' then 
@@ -212,7 +215,24 @@ begin
 		case LCD_state is
 		
 		when idle =>
+			if command_mode = '1' then
+				LCD_state <= wait_command;
+			else
+				LCD_state <= wait_acq;
+			end if;
+		when wait_command =>
+			CS_N = '0';
+			if command_mode = '0' then
+				LCD_state <= wait_acq;
+				CS_N = '1';
+			elsif AS_CS ='1' and AS_write = '1' then
+				case AS_adress is
+				when "0010" => 
+					LCD_state <= write_command;
+					
 		
+		when begin_transfer =>
+				
 		when write_command =>
 		
 		when write_data =>

@@ -10,10 +10,6 @@ entity LT24_controller is
 		clk		: in std_logic;
 		nReset	: in std_logic;
 		
-		-- Acquisition (?)
-		DataAcquisition	: in		NewData				: in std_logic;
-		DataAck				: out std_logic; std_logic_vector(7 downto 0);
-
 		
 		-- Avalon Slave
 		AS_address 			: in std_logic_vector(3 downto 0);
@@ -26,8 +22,8 @@ entity LT24_controller is
 		-- Avalon Master
 		AM_address			: out std_logic_vector(31 downto 0);
 		AM_ByteEnable		: out std_logic_vector(31 downto 0);
-		AM_write				: out std_logic;
-		AM_writedata		: out std_logic_vector(31 downto 0);
+		AM_read				: out std_logic;
+		AM_readdata			: out std_logic_vector(31 downto 0);
 		AM_waitRQ			: in std_logic;
 		
 		-- Lcd Output
@@ -52,8 +48,9 @@ signal buffer_address 	: unsigned(31 DOWNTO 0);
 signal buffer_length  	: unsigned(31 DOWNTO 0);
 signal LCD_command		: unsigned(7 DOWNTO 0);
 signal LCD_data			: unsigned(15 DOWNTO 0);
+signal FIFO_write			: unsigned(31 DOWNTO 0);
 signal command_mode		: std_logic;
-
+signal DataAck				: std_logic;
 signal CntAddress			: unsigned(31 DOWNTO 0);
 signal CntLength			: unsigned(31 DOWNTO 0);
 signal NewData 			: std_logic;
@@ -63,7 +60,7 @@ signal NewData 			: std_logic;
 type LCD_states is (idle, begin_transfer, write_command, write_data, read_data, wait_acq, wait_command);
 signal LCD_state	: LCD_states;
 
-type AM_states is(AM_idle, AM_wait_data, AM_write_data, AM_acq_data);
+type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data);
 signal AM_state : AM_states;
 
 
@@ -132,7 +129,7 @@ begin
 	if nReset = '0' then -- Reset to default values
 		DataAck <= '0';
 		AM_state <= AM_idle;
-		AM_write <= '0';
+		AM_read <= '0';
 		AM_ByteEnable <= "0000";
 		CntAddress <= (others => '0');
 		CntLength <= (others => '0');
@@ -154,23 +151,23 @@ begin
 			if buffer_length = X"0000_0000" then -- go back to idle once buffer length = 0
 				AM_state <= AM_idle;
 			elsif NewData = '1' then -- Loop here until buffer length = 0
-				AM_state <= AM_write_data;
+				AM_state <= AM_read_data;
 				AM_Address <= CntAddress;
-				AM_write <= '1';
-				AM_writedata(7 downto 0) 	<= DataAcquisition;
-				AM_writedata(15 downto 8) 	<= DataAcquisition;
-				AM_writedata(23 downto 16) <= DataAcquisition;
-				AM_writedata(31 downto 24) <= DataAcquisition;
+				AM_read <= '1';
+				FIFO_write(7 downto 0) 	<= readdata(7 downto 0);
+				FIFO_write(15 downto 8) 	<= AM_readdata(15 downto 8);
+				FIFO_write(23 downto 16) <= AM_readdata(23 downto 16);
+				FIFO_write(31 downto 24) <= AM_readdata(31 downto 24);
 				AM_ByteEnable <= "0000";
 				Indice := To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
 				AM_ByteEnable(Indice) <= '1';
 			end if;
 			
-		when AM_write_data =>	-- write on avalon bus
+		when AM_read_data =>	-- read on avalon bus
 		
 			if AM_waitRQ = '0' then
 				AM_state <= AM_acq_data;
-				AM_write <= '0';
+				AM_read <= '0';
 				AM_ByteEnable <= "0000";
 				DataAck <= '1';
 			end if;

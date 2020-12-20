@@ -11,9 +11,9 @@ entity LT24_controller is
 		nReset	: in std_logic;
 		
 		-- Acquisition (?)
-		DataAcquisition	: in std_logic_vector(7 downto 0);
-		NewData				: in std_logic;
-		DataAck				: out std_logic;
+		DataAcquisition	: in		NewData				: in std_logic;
+		DataAck				: out std_logic; std_logic_vector(7 downto 0);
+
 		
 		-- Avalon Slave
 		AS_address 			: in std_logic_vector(3 downto 0);
@@ -53,8 +53,6 @@ signal buffer_length  	: unsigned(31 DOWNTO 0);
 signal LCD_command		: unsigned(7 DOWNTO 0);
 signal LCD_data			: unsigned(15 DOWNTO 0);
 
-signal AcqAddress			: unsigned(31 DOWNTO 0);
-signal AcqLength 			: unsigned(31 DOWNTO 0); 
 signal CntAddress			: unsigned(31 DOWNTO 0);
 signal CntLength			: unsigned(31 DOWNTO 0);
 signal NewData 			: std_logic;
@@ -64,7 +62,7 @@ signal NewData 			: std_logic;
 type LCD_states is (idle, begin_transfer, write_command, write_data, read_data);
 signal LCD_state	: LCD_states;
 
-type AM_states is(idle, wait_data, write_data, acq_data);
+type AM_states is(AM_idle, AM_wait_data, AM_write_data, AM_acq_data);
 signal AM_state : AM_states;
 
 
@@ -132,7 +130,7 @@ Avalon_master : process(clk, nReset)
 begin
 	if nReset = '0' then -- Reset to default values
 		DataAck <= '0';
-		AM_state <= idle;
+		AM_state <= AM_idle;
 		AM_write <= '0';
 		AM_ByteEnable <= "0000";
 		CntAddress <= (others => '0');
@@ -142,20 +140,20 @@ begin
 	
 		case AM_state is
 	
-		when idle =>
+		when AM_idle =>
 		
-			if AcqLength /= X"0000_0000" then -- if length /= 0
-				AM_state <= wait_data;
-				CntAddress <= AcqAddress;
-				CntLength <= AcqLength;
+			if buffer_length /= X"0000_0000" then -- if length /= 0
+				AM_state <= AM_wait_data;
+				CntAddress <= buffer_address; 
+				CntLength <= buffer_length; 
 			end if;
 			
-		when wait_data =>
+		when AM_wait_data =>
 			
-			if AcqLength = X"0000_0000" then -- go back to idle once acqlength = 0
-				AM_state <= idle;
-			elsif NewData = '1' then -- Loop here until acqlength = 0
-				AM_state <= write_data;
+			if buffer_length = X"0000_0000" then -- go back to idle once buffer length = 0
+				AM_state <= AM_idle;
+			elsif NewData = '1' then -- Loop here until buffer length = 0
+				AM_state <= AM_write_data;
 				AM_Address <= CntAddress;
 				AM_write <= '1';
 				AM_writedata(7 downto 0) 	<= DataAcquisition;
@@ -167,26 +165,26 @@ begin
 				AM_ByteEnable(Indice) <= '1';
 			end if;
 			
-		when write_data =>	-- write on avalon bus
+		when AM_write_data =>	-- write on avalon bus
 		
 			if AM_waitRQ = '0' then
-				AM_state <= acq_data;
+				AM_state <= AM_acq_data;
 				AM_write <= '0';
 				AM_ByteEnable <= "0000";
 				DataAck <= '1';
 			end if;
 		
-		when acq_data =>	-- wait end of request
+		when AM_acq_data =>	-- wait end of request
 			
 			if NewData = '0' then
-				AM_state <= wait_data;
+				AM_state <= AM_wait_data;
 				DataAck <= '0';
 				if CntLength /= 1 then	-- not end of buffer, increment address
 					CntAddress <= CntAddress + 1;
 					CntLength <= CntLength - 1;
 				else 							-- end of buffer, roll over
-					CntAddress <= AcqAddress;
-					CntLength <= AcqLength;
+					CntAddress <= buffer_address;
+					CntLength <= buffer_length;
 				end if;
 			end if;
 		end case;

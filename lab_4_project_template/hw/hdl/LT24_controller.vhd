@@ -61,10 +61,10 @@ signal NewData 			: std_logic;
 
 --States of FSM
 
-type LCD_states is (idle, write_command, write_data, read_data);
+type LCD_states is (idle, begin_transfer, write_command, write_data, read_data);
 signal LCD_state	: LCD_states;
 
-type AM_states is(idle, wait_data, write_data, acq_data)
+type AM_states is(idle, wait_data, write_data, acq_data);
 signal AM_state : AM_states;
 
 
@@ -82,17 +82,6 @@ begin
 		LCD_command  <= (others => '0');
 		LDC_data  <= (others => '0');
 	elsif rising_edge(clk) then			
-	end if;
-    
-		if AS_CS  = '1' and AS_write = '1' then -- NICOLAS IMPLEMENTATION
-			
-			case AS_address is 
-				when '0' => AcqAddress 	<= unsigned(AS_writedata); -- register the address
-				when '1' => AcqLength 	<= unsigned(AS_writedata);	--	register the length
-				when others => null;
-			end case;
-		end if;
-	end if;
 		if AS_CS = '1' and AS_write = '1' then --GUGU IMPLEMENTATION
 			case AS_address is
 			when "0000" => buffer_address <= AS_writedata;
@@ -121,9 +110,17 @@ begin
 	if rising_edge(clk) then
 		if AS_CS  = '1' and AS_read = '1' then
 			case AS_address is
-				when '0' => AS_readdata <= std_logic_vector(AcqAddress); -- Read back Acq start address
-				when '1' => AS_readdata <= std_logic_vector(AcqLength); -- Read back Acq length
+				when "0000" => 
+				when "0001" => 
+				when "0010" => 
+				when "0011" => 
+				when "0100" =>
+				when "0101" =>
+				when "0110" =>
+				when "0111" =>
+				when "1000" =>
 				when others => null;
+			end case;
 		end if;
 	end if;
 
@@ -134,7 +131,7 @@ end process Avalon_slave_read;
 Avalon_master : process(clk, nReset)
 begin
 	if nReset = '0' then -- Reset to default values
-		DataAck <= '0'
+		DataAck <= '0';
 		AM_state <= idle;
 		AM_write <= '0';
 		AM_ByteEnable <= "0000";
@@ -156,9 +153,9 @@ begin
 		when wait_data =>
 			
 			if AcqLength = X"0000_0000" then -- go back to idle once acqlength = 0
-				AM_state = idle;
+				AM_state <= idle;
 			elsif NewData = '1' then -- Loop here until acqlength = 0
-				AM_state = write_data;
+				AM_state <= write_data;
 				AM_Address <= CntAddress;
 				AM_write <= '1';
 				AM_writedata(7 downto 0) 	<= DataAcquisition;
@@ -173,8 +170,8 @@ begin
 		when write_data =>	-- write on avalon bus
 		
 			if AM_waitRQ = '0' then
-				AM_state = acq_data;
-				AM_write = '0';
+				AM_state <= acq_data;
+				AM_write <= '0';
 				AM_ByteEnable <= "0000";
 				DataAck <= '1';
 			end if;
@@ -182,7 +179,7 @@ begin
 		when acq_data =>	-- wait end of request
 			
 			if NewData = '0' then
-				AM_state = wait_data;
+				AM_state <= wait_data;
 				DataAck <= '0';
 				if CntLength /= 1 then	-- not end of buffer, increment address
 					CntAddress <= CntAddress + 1;
@@ -195,7 +192,7 @@ begin
 		end case;
 	end if;
 		
-end process Avalon_master
+end process Avalon_master;
 
 
 

@@ -33,7 +33,15 @@ entity LT24_controller is
 		DATA       		 	: out std_logic_vector(15 downto 0);
 		RD_N        		: out std_logic;
 		WR_N        		: out std_logic;
-		D_C_N					: out std_logic -- low : Command, high : Data
+		D_C_N					: out std_logic; -- low : Command, high : Data
+		
+		-- FIFO
+		FIFO_write			: out std_logic;
+		FIFO_writedata		: out std_logic_vector(31 downto 0);
+		FIFO_read			: out std_logic;
+		FIFO_readdata		: in std_logic_vector(31 downto 0);
+		almost_empty		: in std_logic;
+		almost_full			: in std_logic
 		
 	);
 end LT24_controller;
@@ -43,16 +51,16 @@ architecture comp of LT24_controller is
 
 --Internal Registers
 
-signal wait_LCD 			: unsigned(3 DOWNTO 0);
-signal buffer_address 	: unsigned(31 DOWNTO 0);
-signal buffer_length  	: unsigned(31 DOWNTO 0);
-signal LCD_command		: unsigned(7 DOWNTO 0);
-signal LCD_data			: unsigned(15 DOWNTO 0);
-signal FIFO_write			: unsigned(31 DOWNTO 0);
+signal wait_LCD 			: unsigned(3 downto 0);
+signal buffer_address 	: unsigned(31 downto 0);
+signal buffer_length  	: unsigned(31 downto 0);
+signal LCD_command		: unsigned(7 downto 0);
+signal LCD_data			: unsigned(15 downto 0);
+
 signal command_mode		: std_logic;
 signal DataAck				: std_logic;
-signal CntAddress			: unsigned(31 DOWNTO 0);
-signal CntLength			: unsigned(31 DOWNTO 0);
+signal CntAddress			: unsigned(31 downto 0);
+signal CntLength			: unsigned(31 downto 0);
 signal NewData 			: std_logic;
 
 --States of FSM
@@ -154,13 +162,14 @@ begin
 				AM_state <= AM_read_data;
 				AM_Address <= CntAddress;
 				AM_read <= '1';
-				FIFO_write(7 downto 0) 	<= readdata(7 downto 0);
-				FIFO_write(15 downto 8) 	<= AM_readdata(15 downto 8);
-				FIFO_write(23 downto 16) <= AM_readdata(23 downto 16);
-				FIFO_write(31 downto 24) <= AM_readdata(31 downto 24);
+				FIFO_writedata(7 downto 0) 	<= AM_readdata(7 downto 0);
+				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
+				FIFO_writedata(23 downto 16) <= AM_readdata(23 downto 16);
+				FIFO_writedata(31 downto 24) <= AM_readdata(31 downto 24);
 				AM_ByteEnable <= "0000";
 				Indice := To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
 				AM_ByteEnable(Indice) <= '1';
+				-- TODO - write to FIFO? FIFO should be syncronous with clock, so maybe turn FIFO_write to 1 here for 1 clock cycle and turn it back to 0 after, or create seperate process to handle fifo.
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus

@@ -169,7 +169,7 @@ begin
 				AM_ByteEnable <= "0000";
 				Indice := To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
 				AM_ByteEnable(Indice) <= '1';
-				-- TODO - write to FIFO? FIFO should be syncronous with clock, so maybe turn FIFO_write to 1 here for 1 clock cycle and turn it back to 0 after, or create seperate process to handle fifo.
+				FIFO_write <= '1';
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus
@@ -199,7 +199,18 @@ begin
 		
 end process Avalon_master;
 
-
+-- FIFO write
+FIFO_write : process(clk, nReset)
+begin
+	if nReset = '0' then
+		FIFO_write <= '0';
+		FIFO_read <= '0';
+	elsif rising_edge(clk) then
+		if FIFO_write = '1' then
+			FIFO_write <= '0';		-- maybe add signal as buffer? 
+		end if;
+	end if;
+end process FIFO_write;
 
 --LCD controller FSM
 
@@ -227,15 +238,16 @@ begin
 				LCD_state <= wait_acq;
 			end if;
 		when wait_command =>
-			CS_N = '0';
+			CS_N <= '0';
 			if command_mode = '0' then
 				LCD_state <= wait_acq;
-				CS_N = '1';
+				CS_N <= '1';
 			elsif AS_CS ='1' and AS_write = '1' then
 				case AS_adress is
 				when "0010" => 
 					LCD_state <= write_command;
-					
+				end case;
+			end if;	
 		
 		when begin_transfer =>
 				

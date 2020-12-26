@@ -1,0 +1,60 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity FIFO_testbench is
+end FIFO_testbench;
+
+architecture test of FIFO_testbench is
+	
+	-- Delta T
+	constant CLK_PERIOD : time := 100 ns;
+
+	-- FIFO ports
+	signal clock		: STD_LOGIC ;
+	signal data		: STD_LOGIC_VECTOR (31 DOWNTO 0);
+	signal rdreq		: STD_LOGIC ;
+	signal wrreq		: STD_LOGIC ;
+	signal almost_empty	: STD_LOGIC ;
+	signal almost_full	: STD_LOGIC ;
+	signal empty		: STD_LOGIC ;
+	signal full		: STD_LOGIC ;
+	signal q		: STD_LOGIC_VECTOR (31 DOWNTO 0);
+
+begin
+
+	-- Instantiate DUT
+	dut: entity work.FIFO
+	port map(clock => clock,
+		data => data,
+		rdreq => rdreq,
+		wrreq => wrreq,
+		almost_empty => almost_empty,
+		almost_full => almost_full,
+		empty => empty,
+		full => full,
+		q => q);
+		
+	-- Generate clock signal
+	clk_generation : process
+	begin
+		CLK <= '1';
+		wait for CLK_PERIOD / 2;
+		CLK <= '0';
+		wait for CLK_PERIOD / 2;
+	end process clk_generation;
+
+	simulation : process
+		
+		procedure write(constant data : in natural) is
+			variable res : natural;
+		begin
+		
+			wait until rising_edge(CLK);
+			
+			
+			
+		end procedure write;
+
+	end process simulation;
+end architecture test;

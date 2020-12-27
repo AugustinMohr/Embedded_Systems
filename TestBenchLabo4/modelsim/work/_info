@@ -21,9 +21,9 @@ VgcaCjeEHh=Zd86_aO_J>93
 !s100 e2TF]b4Uhlo2VA=gMZ0k>1
 Z6 OV;C;10.5b;63
 32
-Z7 !s110 1608979602
+Z7 !s110 1609068983
 !i10b 1
-Z8 !s108 1608979602.000000
+Z8 !s108 1609068983.000000
 Z9 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/nicca/DeskDoc/EmbeddedSystems/Embedded_Systems/TestBenchLabo4/vhdl/FIFO.vhd|
 Z10 !s107 C:/Users/nicca/DeskDoc/EmbeddedSystems/Embedded_Systems/TestBenchLabo4/vhdl/FIFO.vhd|
 !i113 1
@@ -48,7 +48,7 @@ R10
 R11
 R12
 Efifo_testbench
-Z16 w1608979600
+Z16 w1609068976
 Z17 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
 R1
 R2
@@ -61,11 +61,11 @@ VaCf?:9[kgNbD2=:5MzcRY3
 !s100 cRGom9E27N]m@XEaLXZgl0
 R6
 32
-R7
+Z20 !s110 1609068982
 !i10b 1
-R8
-Z20 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/nicca/DeskDoc/EmbeddedSystems/Embedded_Systems/TestBenchLabo4/testbench/FIFOtestbench.vhd|
-Z21 !s107 C:/Users/nicca/DeskDoc/EmbeddedSystems/Embedded_Systems/TestBenchLabo4/testbench/FIFOtestbench.vhd|
+Z21 !s108 1609068982.000000
+Z22 !s90 -reportprogress|300|-work|work|-2002|-explicit|-stats=none|C:/Users/nicca/DeskDoc/EmbeddedSystems/Embedded_Systems/TestBenchLabo4/testbench/FIFOtestbench.vhd|
+Z23 !s107 C:/Users/nicca/DeskDoc/EmbeddedSystems/Embedded_Systems/TestBenchLabo4/testbench/FIFOtestbench.vhd|
 !i113 1
 R11
 R12
@@ -77,15 +77,15 @@ R2
 DEx4 work 14 fifo_testbench 0 22 aCf?:9[kgNbD2=:5MzcRY3
 l24
 L8
-VgGb>eCV@O2WOGa`9aG=OE2
-!s100 JZgW>>G]<7?I57QlfE]D_2
+V:hmk6e84BoBFD4nYW6zRU2
+!s100 N2SS`G`Lgzdg;O]V:zMaH1
 R6
 32
-R7
-!i10b 1
-R8
 R20
+!i10b 1
 R21
+R22
+R23
 !i113 1
 R11
 R12

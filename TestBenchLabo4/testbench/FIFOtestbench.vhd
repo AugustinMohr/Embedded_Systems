@@ -54,7 +54,7 @@ begin
 	-- Default values
 	
 	data <= (others => '0');
-	q <= (others => '0');
+	q <= (others => 'Z');
 	rdreq <= '0';
 	wrreq <= '0';
 	
@@ -87,6 +87,7 @@ begin
 
 	wait until rising_edge(clock);
 	rdreq <= '0';
+	q <= (others => 'Z');
 	wait until rising_edge(clock);
 	rdreq <= '1';
 

@@ -86,11 +86,11 @@ begin
 	rdreq <= '1';
 
 	wait until rising_edge(clock);
-	rdreg <= '0';
+	rdreq <= '0';
 	wait until rising_edge(clock);
 	rdreq <= '1';
 
 	wait until rising_edge(clock);
-	rdreg <= '0';
+	rdreq <= '0';
 	end process simulation;
 end architecture test;

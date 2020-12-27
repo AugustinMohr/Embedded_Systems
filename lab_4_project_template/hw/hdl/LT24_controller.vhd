@@ -23,7 +23,7 @@ entity LT24_controller is
 		AM_address			: out std_logic_vector(31 downto 0);
 		AM_ByteEnable		: out std_logic_vector(31 downto 0);
 		AM_read				: out std_logic;
-		AM_readdata			: out std_logic_vector(31 downto 0);
+		AM_readdata			: in std_logic_vector(31 downto 0);
 		AM_waitRQ			: in std_logic;
 		
 		-- Lcd Output
@@ -62,6 +62,9 @@ signal DataAck				: std_logic;
 signal CntAddress			: unsigned(31 downto 0);
 signal CntLength			: unsigned(31 downto 0);
 signal NewData 			: std_logic;
+signal FIFO_write_flag 	: std_logic;
+
+variable Indice				: integer;
 
 --States of FSM
 
@@ -84,14 +87,14 @@ begin
 		buffer_address <= (others => '0');
 		buffer_length  <= (others => '0');
 		LCD_command  <= (others => '0');
-		LDC_data  <= (others => '0');
+		LCD_data  <= (others => '0');
 	elsif rising_edge(clk) then			
 		if AS_CS = '1' and AS_write = '1' then --GUGU IMPLEMENTATION
 			case AS_address is
-			when "0000" => buffer_address <= AS_writedata;
-			when "0001" => buffer_length  <= AS_writedata;
-			when "0010" => LCD_command		<= AS_writedata;
-			when "0011" => LCD_data			<= AS_writedata;
+			when "0000" => buffer_address <= unsigned(AS_writedata);
+			when "0001" => buffer_length  <= unsigned(AS_writedata);
+			when "0010" => LCD_command		<= unsigned(AS_writedata);
+			when "0011" => LCD_data			<= unsigned(AS_writedata);
 			when "0100" =>
 			when "0101" =>
 			when "0110" =>
@@ -114,10 +117,10 @@ begin
 	if rising_edge(clk) then
 		if AS_CS  = '1' and AS_read = '1' then
 			case AS_address is
-				when "0000" => AS_readdata <= buffer_address;
-				when "0001" => AS_readdata <= buffer_length;
-				when "0010" => AS_readdata <= LCD_command;
-				when "0011" => AS_readdata <= LCD_data;
+				when "0000" => AS_readdata <= std_logic_vector(buffer_address);
+				when "0001" => AS_readdata <= std_logic_vector(buffer_length);
+				when "0010" => AS_readdata <= std_logic_vector(LCD_command);
+				when "0011" => AS_readdata <= std_logic_vector(LCD_data);
 				when "0100" =>
 				when "0101" =>
 				when "0110" =>
@@ -160,7 +163,7 @@ begin
 				AM_state <= AM_idle;
 			elsif NewData = '1' then -- Loop here until buffer length = 0
 				AM_state <= AM_read_data;
-				AM_Address <= CntAddress;
+				AM_Address <= std_logic_vector(CntAddress);
 				AM_read <= '1';
 				FIFO_writedata(7 downto 0) 	<= AM_readdata(7 downto 0);
 				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
@@ -170,6 +173,7 @@ begin
 				Indice := To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
 				AM_ByteEnable(Indice) <= '1';
 				FIFO_write <= '1';
+				FIFO_write_flag <= '1';
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus
@@ -200,17 +204,18 @@ begin
 end process Avalon_master;
 
 -- FIFO write
-FIFO_write : process(clk, nReset)
+FIFO_write_process : process(clk, nReset)
 begin
 	if nReset = '0' then
 		FIFO_write <= '0';
+		FIFO_write_flag <= '0';
 		FIFO_read <= '0';
 	elsif rising_edge(clk) then
-		if FIFO_write = '1' then
+		if FIFO_write_flag = '1' then
 			FIFO_write <= '0';		-- maybe add signal as buffer? 
 		end if;
 	end if;
-end process FIFO_write;
+end process FIFO_write_process;
 
 --LCD controller FSM
 
@@ -243,7 +248,7 @@ begin
 				LCD_state <= wait_acq;
 				CS_N <= '1';
 			elsif AS_CS ='1' and AS_write = '1' then
-				case AS_adress is
+				case AS_address is
 				when "0010" => 
 					LCD_state <= write_command;
 				end case;

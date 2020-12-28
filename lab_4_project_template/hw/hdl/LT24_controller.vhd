@@ -39,7 +39,7 @@ entity LT24_controller is
 		FIFO_write			: out std_logic;
 		FIFO_writedata		: out std_logic_vector(31 downto 0);
 		FIFO_read			: out std_logic;
-		FIFO_readdata		: in std_logic_vector(31 downto 0);
+		FIFO_readdata		: in std_logic_vector(15 downto 0);
 		almost_empty		: in std_logic;
 		almost_full			: in std_logic
 		
@@ -51,7 +51,7 @@ architecture comp of LT24_controller is
 
 --Internal Registers
 
-signal wait_LCD 			: unsigned(3 downto 0);
+
 signal buffer_address 	: unsigned(31 downto 0);
 signal buffer_length  	: unsigned(31 downto 0);
 signal LCD_command		: unsigned(7 downto 0);
@@ -64,11 +64,17 @@ signal CntLength			: unsigned(31 downto 0);
 signal NewData 			: std_logic;
 signal FIFO_write_flag 	: std_logic;
 
+variable wait_LCD 			: integer;
 variable Indice				: integer;
+variable num_pixels			: integer := 0;
+
+--Constants
+
+constant MAX_PIXELS 			: integer := 76800; --320x240 pixels
 
 --States of FSM
 
-type LCD_states is (idle, begin_transfer, write_command, write_data, read_data, wait_acq, wait_command);
+type LCD_states is (idle, begin_transfer, write_command, write_data, read_data, wait_acq, wait_command, frame_finished, read_fifo);
 signal LCD_state	: LCD_states;
 
 type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data);
@@ -251,16 +257,56 @@ begin
 				case AS_address is
 				when "0010" => 
 					LCD_state <= write_command;
+				when"0011" =>
+					LCD_state <= write_data;
+				when others =>
+					null;
 				end case;
 			end if;	
 		
-		when begin_transfer =>
-				
 		when write_command =>
-		
+			CS_N <= '0';
+			WR_N <= '0';
+			D_C_N <= '0';
+			DATA <= x"00" & LCD_command;
+			wait_LCD := wait_LCD + 1;
+			if wait_LCD = 3 then
+				WR_N <= '1';
+				LCD_state <= idle;
+			end if;
 		when write_data =>
-		
-		when read_data =>
+			CS_N <= '0';
+			WR_N <= '0';
+			D_C_N <= '1';
+			DATA <= LCD_data;
+			wait_LCD := wait_LCD + 1;
+			if wait_LCD = 3 then
+				WR_N <= '1';
+				LCD_state <= idle;
+			end if;
+		when wait_acq =>
+			if num_pixels = MAX_PIXELS then
+				LCD_state <= frame_finished;
+			elsif almost_empty = '0' then
+				FIFO_read <= '1';
+				D_C_N <= '1';
+				wait_LCD := 0;
+				LCD_state <= read_fifo;
+			end if;
+		when read_fifo =>
+			CS_N <= '0';
+			WR_N <= '0';
+			D_C_N <= '1';
+			DATA <= FIFO_readdata;
+			if wait_LCD = 3 then
+				WR_N <= '1';
+				LCD_state <= idle;
+				num_pixels := num_pixels + 1;
+			end if;
+			
+		when frame_finished =>
+				num_pixels := 0;															--TODO : Interrupt when the frame is finished ?
+															
 			
 		end case;
 	end if;

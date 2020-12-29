@@ -25,6 +25,7 @@ entity LT24_controller is
 		AM_read				: out std_logic;
 		AM_readdata			: in std_logic_vector(31 downto 0);
 		AM_waitRQ			: in std_logic;
+		AM_Rddatavalid		: in std_logic;
 		
 		-- Lcd Output
 		LCD_ON				: out std_logic;
@@ -51,11 +52,12 @@ signal LCD_command		: unsigned(7 downto 0);
 signal LCD_data			: unsigned(15 downto 0);
 
 signal command_mode		: std_logic;
-signal DataAck				: std_logic;
+signal DataAck				: std_logic;	-- TODO: is this useful?
 signal CntAddress			: unsigned(31 downto 0);
 signal CntLength			: unsigned(31 downto 0);
-signal NewData 			: std_logic;
 signal FIFO_write_flag 	: std_logic;
+signal bursts_left		: unsigned(7 downto 0);
+signal newdata_interrupt: std_logic; 
 
 variable wait_LCD 			: integer;
 variable Indice				: integer;
@@ -64,13 +66,15 @@ variable num_pixels			: integer := 0;
 --Constants
 
 constant MAX_PIXELS 			: integer := 76800; --320x240 pixels
+constant BURST_COUNT			: unsigned(7 downto 0) := "00010000";
+constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := "11111111"; -- TODO
 
 --States of FSM
 
 type LCD_states is (idle, begin_transfer, write_command, write_data, read_data, wait_acq, wait_command, frame_finished, read_fifo);
 signal LCD_state	: LCD_states;
 
-type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data);
+type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data, AM_wait_interrupt, AM_wait_FIFO);
 signal AM_state : AM_states;
 
 
@@ -184,9 +188,13 @@ begin
 		AM_ByteEnable <= "0000";
 		CntAddress <= (others => '0');
 		CntLength <= (others => '0');
+		AM_BurstCount <= (others => '0');
+		bursts_left <= (others => '0');
 		
 	elsif rising_edge(clk) then
 	
+		FIFO_write <= '0';
+		FIFO_writedata <= (others => '0');
 		case AM_state is
 	
 		when AM_idle =>
@@ -199,63 +207,73 @@ begin
 			
 		when AM_wait_data =>
 			
-			if buffer_length = X"0000_0000" then -- go back to idle once buffer length = 0
+			if buffer_length = X"0000_0000" then -- go back to idle if buffer length = 0
 				AM_state <= AM_idle;
-			elsif NewData = '1' then -- Loop here until buffer length = 0
+			elsif FIFO_usedw >= ALMOST_FULL then 
+				AM_state <= AM_wait_FIFO;
+			else -- Loop here
 				AM_state <= AM_read_data;
 				AM_Address <= std_logic_vector(CntAddress);
+				AM_BurstCount <= std_logic_vector(BURST_COUNT);
 				AM_read <= '1';
-				FIFO_writedata(7 downto 0) 	<= AM_readdata(7 downto 0);
-				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
-				FIFO_writedata(23 downto 16) <= AM_readdata(23 downto 16);
-				FIFO_writedata(31 downto 24) <= AM_readdata(31 downto 24);
 				AM_ByteEnable <= "0000";
 				Indice := To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
 				AM_ByteEnable(Indice) <= '1';
-				FIFO_write <= '1';
-				FIFO_write_flag <= '1';
 			end if;
 			
-		when AM_read_data =>	-- read on avalon bus
+		when AM_read_data- =>	-- read on avalon bus
 		
 			if AM_waitRQ = '0' then
 				AM_state <= AM_acq_data;
+				AM_BurstCount <= (others => '0');
+				bursts_left <= BURST_COUNT;
 				AM_read <= '0';
 				AM_ByteEnable <= "0000";
 				DataAck <= '1';
 			end if;
 		
 		when AM_acq_data =>	-- wait end of request
-			
-			if NewData = '0' then
+		
+			if AM_Rddatavalid = '1' then
+				FIFO_write <= '1';
+				FIFO_writedata(7 downto 0) 	<= AM_readdata(7 downto 0);
+				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
+				FIFO_writedata(23 downto 16) <= AM_readdata(23 downto 16);
+				FIFO_writedata(31 downto 24) <= AM_readdata(31 downto 24);
 				AM_state <= AM_wait_data;
 				DataAck <= '0';
 				if CntLength /= 1 then	-- not end of buffer, increment address
-					CntAddress <= CntAddress + 1;
+					CntAddress <= CntAddress + 4; -- is that correct?
+					bursts_left <= bursts_left - 1;
 					CntLength <= CntLength - 1;
-				else 							-- end of buffer, roll over
-					CntAddress <= buffer_address;
-					CntLength <= buffer_length;
+					if burst_left <= "00000001" then 
+						AM_state <= AM_wait_data; 
+				else 
+					if newdata_interrupt = '1' then
+						AM_state <= AM_wait_interrupt -- end of buffer, wait for processor to validate new buffer
+					else -- buffer data is already valid, processor has set the interrupt to 0 manually
+						CntAddress <= buffer_address;
+						CntLength <= buffer_length;
+						AM_state <= AM_idle;
+					end if;
 				end if;
+			end if;
+			
+		when AM_wait_interrupt => -- Wait for processor to deactivate interrupt
+			if newdata_interrupt = '0' then
+				newdata_interrupt = '1'; -- Set to 1 so that next time it arrives at end of buffer it will interrupt
+				CntAddress <= buffer_address;
+				CntLength <= buffer_length;
+				AM_state <= AM_idle;
+			end if;	
+		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
+			if FIFO_usedw < ALMOST_FULL then
+				AM_state => AM_idle;
 			end if;
 		end case;
 	end if;
 		
 end process Avalon_master;
-
--- FIFO write
-FIFO_write_process : process(clk, nReset)
-begin
-	if nReset = '0' then
-		FIFO_write <= '0';
-		FIFO_write_flag <= '0';
-		FIFO_read <= '0';
-	elsif rising_edge(clk) then
-		if FIFO_write_flag = '1' then
-			FIFO_write <= '0';		-- maybe add signal as buffer? 
-		end if;
-	end if;
-end process FIFO_write_process;
 
 --LCD controller FSM
 

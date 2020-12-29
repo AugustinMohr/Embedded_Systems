@@ -33,7 +33,7 @@ entity LT24_controller is
 		DATA       		 	: out std_logic_vector(15 downto 0);
 		RD_N        		: out std_logic;
 		WR_N        		: out std_logic;
-		D_C_N					: out std_logic; -- low : Command, high : Data
+		D_C_N					: out std_logic -- low : Command, high : Data
 		
 		
 	);
@@ -75,6 +75,17 @@ signal AM_state : AM_states;
 
 
 
+-- FIFO signals
+
+signal FIFO_write				: std_logic;
+signal FIFO_writedata		: std_logic_vector(31 downto 0);
+signal FIFO_read				: std_logic;
+signal FIFO_readdata			: std_logic_vector(15 downto 0);
+signal FIFO_write_flag 		: std_logic;
+signal FIFO_empty				: std_logic;
+signal FIFO_full 				: std_logic;
+signal FIFO_usedw				: STD_LOGIC_VECTOR (7 DOWNTO 0);
+
 
 component FIFO
 	PORT
@@ -94,15 +105,15 @@ end component;
 begin
 
 FIFO_inst : FIFO PORT MAP (
-		data	 	=> data_sig,
-		rdclk	 	=> rdclk_sig,
-		rdreq	 	=> rdreq_sig,
-		wrclk	 	=> wrclk_sig,
-		wrreq	 	=> wrreq_sig,
-		q	 		=> q_sig,
-		rdempty	=> rdempty_sig,
-		wrfull	=> wrfull_sig,
-		wrusedw	=> wrusedw_sig
+		data	 	=> FIFO_writedata,
+		rdclk	 	=> clk,
+		rdreq	 	=> FIFO_read,
+		wrclk	 	=> clk,
+		wrreq	 	=> FIFO_write,
+		q	 		=> FIFO_readdata,
+		rdempty	=> FIFO_empty,
+		wrfull	=> FIFO_full,
+		wrusedw	=> FIFO_usedw
 	);
 
 

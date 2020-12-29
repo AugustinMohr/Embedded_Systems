@@ -35,13 +35,6 @@ entity LT24_controller is
 		WR_N        		: out std_logic;
 		D_C_N					: out std_logic; -- low : Command, high : Data
 		
-		-- FIFO
-		FIFO_write			: out std_logic;
-		FIFO_writedata		: out std_logic_vector(31 downto 0);
-		FIFO_read			: out std_logic;
-		FIFO_readdata		: in std_logic_vector(15 downto 0);
-		almost_empty		: in std_logic;
-		almost_full			: in std_logic
 		
 	);
 end LT24_controller;
@@ -81,7 +74,37 @@ type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data);
 signal AM_state : AM_states;
 
 
+
+
+component FIFO
+	PORT
+	(
+		data			: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+		rdclk			: IN STD_LOGIC ;
+		rdreq			: IN STD_LOGIC ;
+		wrclk			: IN STD_LOGIC ;
+		wrreq			: IN STD_LOGIC ;
+		q				: OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
+		rdempty		: OUT STD_LOGIC ;
+		wrfull		: OUT STD_LOGIC ;
+		wrusedw		: OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
+	);
+end component;
+
 begin
+
+FIFO_inst : FIFO PORT MAP (
+		data	 	=> data_sig,
+		rdclk	 	=> rdclk_sig,
+		rdreq	 	=> rdreq_sig,
+		wrclk	 	=> wrclk_sig,
+		wrreq	 	=> wrreq_sig,
+		q	 		=> q_sig,
+		rdempty	=> rdempty_sig,
+		wrfull	=> wrfull_sig,
+		wrusedw	=> wrusedw_sig
+	);
+
 
 
 -- Avalon Slave write to registers

@@ -1,11 +1,11 @@
 FIFO_inst : FIFO PORT MAP (
-		clock	 => clock_sig,
 		data	 => data_sig,
+		rdclk	 => rdclk_sig,
 		rdreq	 => rdreq_sig,
+		wrclk	 => wrclk_sig,
 		wrreq	 => wrreq_sig,
-		almost_empty	 => almost_empty_sig,
-		almost_full	 => almost_full_sig,
-		empty	 => empty_sig,
-		full	 => full_sig,
-		q	 => q_sig
+		q	 => q_sig,
+		rdempty	 => rdempty_sig,
+		wrfull	 => wrfull_sig,
+		wrusedw	 => wrusedw_sig
 	);

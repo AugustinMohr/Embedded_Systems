@@ -26,6 +26,7 @@ entity LT24_controller is
 		AM_readdata			: in std_logic_vector(31 downto 0);
 		AM_waitRQ			: in std_logic;
 		AM_Rddatavalid		: in std_logic;
+		AM_BurstCount		: in std_logic_vector(7 downto 0);
 		
 		-- Lcd Output
 		LCD_ON				: out std_logic;
@@ -133,7 +134,7 @@ begin
 		LCD_command  <= (others => '0');
 		LCD_data  <= (others => '0');
 	elsif rising_edge(clk) then			
-		if AS_CS = '1' and AS_write = '1' then --GUGU IMPLEMENTATION
+		if AS_CS = '1' and AS_write = '1' then 
 			case AS_address is
 			when "0000" => buffer_address <= unsigned(AS_writedata);
 			when "0001" => buffer_length  <= unsigned(AS_writedata);

@@ -221,7 +221,7 @@ begin
 				AM_ByteEnable(Indice) <= '1';
 			end if;
 			
-		when AM_read_data- =>	-- read on avalon bus
+		when AM_read_data =>	-- read on avalon bus
 		
 			if AM_waitRQ = '0' then
 				AM_state <= AM_acq_data;
@@ -246,11 +246,12 @@ begin
 					CntAddress <= CntAddress + 4; -- is that correct?
 					bursts_left <= bursts_left - 1;
 					CntLength <= CntLength - 1;
-					if burst_left <= "00000001" then 
+					if burst_left <= "00000001" then -- end of burst
 						AM_state <= AM_wait_data; 
-				else 
+					end if;
+				else 	-- end of buffer
 					if newdata_interrupt = '1' then
-						AM_state <= AM_wait_interrupt -- end of buffer, wait for processor to validate new buffer
+						AM_state <= AM_wait_interrupt; -- wait for processor to validate new buffer
 					else -- buffer data is already valid, processor has set the interrupt to 0 manually
 						CntAddress <= buffer_address;
 						CntLength <= buffer_length;
@@ -261,14 +262,14 @@ begin
 			
 		when AM_wait_interrupt => -- Wait for processor to deactivate interrupt
 			if newdata_interrupt = '0' then
-				newdata_interrupt = '1'; -- Set to 1 so that next time it arrives at end of buffer it will interrupt
+				newdata_interrupt <= '1'; -- Set to 1 so that next time it arrives at end of buffer it will interrupt
 				CntAddress <= buffer_address;
 				CntLength <= buffer_length;
 				AM_state <= AM_idle;
 			end if;	
 		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
 			if FIFO_usedw < ALMOST_FULL then
-				AM_state => AM_idle;
+				AM_state <= AM_idle;
 			end if;
 		end case;
 	end if;

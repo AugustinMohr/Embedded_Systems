@@ -26,7 +26,7 @@ entity LT24_controller is
 		AM_readdata			: in std_logic_vector(31 downto 0);
 		AM_waitRQ			: in std_logic;
 		AM_Rddatavalid		: in std_logic;
-		AM_BurstCount		: in std_logic_vector(7 downto 0);
+		AM_BurstCount		: out std_logic_vector(7 downto 0);
 		
 		-- Lcd Output
 		LCD_ON				: out std_logic;
@@ -56,7 +56,6 @@ signal command_mode		: std_logic;
 signal DataAck				: std_logic;	-- TODO: is this useful?
 signal CntAddress			: unsigned(31 downto 0);
 signal CntLength			: unsigned(31 downto 0);
-signal FIFO_write_flag 	: std_logic;
 signal bursts_left		: unsigned(7 downto 0);
 signal newdata_interrupt: std_logic; 
 
@@ -247,7 +246,7 @@ begin
 					CntAddress <= CntAddress + 4; -- is that correct?
 					bursts_left <= bursts_left - 1;
 					CntLength <= CntLength - 1;
-					if burst_left <= "00000001" then -- end of burst
+					if bursts_left <= "00000001" then -- end of burst
 						AM_state <= AM_wait_data; 
 					end if;
 				else 	-- end of buffer

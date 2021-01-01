@@ -59,9 +59,9 @@ signal CntLength			: unsigned(31 downto 0);
 signal bursts_left		: unsigned(7 downto 0);
 signal newdata_interrupt: std_logic; 
 
-variable wait_LCD 			: integer;
-variable Indice				: integer;
-variable num_pixels			: integer := 0;
+signal wait_LCD 			: integer;
+signal Indice				: integer;
+signal num_pixels			: integer := 0;
 
 --Constants
 
@@ -359,8 +359,7 @@ begin
 			end if;
 			
 		when frame_finished =>
-				num_pixels := 0;															--TODO : Interrupt when the frame is finished ?
-															
+				num_pixels := 0;															--TODO : Interrupt when the frame is finished 
 			
 		end case;
 	end if;

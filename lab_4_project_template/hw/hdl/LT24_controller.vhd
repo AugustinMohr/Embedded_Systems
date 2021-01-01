@@ -21,7 +21,7 @@ entity LT24_controller is
 		
 		-- Avalon Master
 		AM_address			: out std_logic_vector(31 downto 0);
-		AM_ByteEnable		: out std_logic_vector(31 downto 0);
+		AM_ByteEnable		: out std_logic_vector(3 downto 0);
 		AM_read				: out std_logic;
 		AM_readdata			: in std_logic_vector(31 downto 0);
 		AM_waitRQ			: in std_logic;
@@ -49,8 +49,8 @@ architecture comp of LT24_controller is
 
 signal buffer_address 	: unsigned(31 downto 0);
 signal buffer_length  	: unsigned(31 downto 0);
-signal LCD_command		: unsigned(7 downto 0);
-signal LCD_data			: unsigned(15 downto 0);
+signal LCD_command		: std_logic_vector(7 downto 0);
+signal LCD_data			: std_logic_vector(15 downto 0);
 
 signal command_mode		: std_logic;
 signal DataAck				: std_logic;	-- TODO: is this useful?
@@ -137,8 +137,8 @@ begin
 			case AS_address is
 			when "0000" => buffer_address <= unsigned(AS_writedata);
 			when "0001" => buffer_length  <= unsigned(AS_writedata);
-			when "0010" => LCD_command		<= unsigned(AS_writedata);
-			when "0011" => LCD_data			<= unsigned(AS_writedata);
+			when "0010" => LCD_command		<= AS_writedata;
+			when "0011" => LCD_data			<= AS_writedata;
 			when "0100" =>
 			when "0101" =>
 			when "0110" =>
@@ -321,7 +321,8 @@ begin
 			CS_N <= '0';
 			WR_N <= '0';
 			D_C_N <= '0';
-			DATA <= x"00" & LCD_command;
+			DATA(15 downto 8) <= x"00";
+			DATA(7 downto 0) <= LCD_command;
 			wait_LCD := wait_LCD + 1;
 			if wait_LCD = 3 then
 				WR_N <= '1';
@@ -340,7 +341,7 @@ begin
 		when wait_acq =>
 			if num_pixels = MAX_PIXELS then
 				LCD_state <= frame_finished;
-			elsif almost_empty = '0' then
+			elsif FIFO_empty = '0' then
 				FIFO_read <= '1';
 				D_C_N <= '1';
 				wait_LCD := 0;

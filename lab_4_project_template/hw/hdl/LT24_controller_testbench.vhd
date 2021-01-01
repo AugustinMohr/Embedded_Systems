@@ -85,7 +85,7 @@ begin
 	
 	-- Default values
 	
-	nReset <= '1';
+	nReset <= '0';
 	AS_readdata <= (others => 'Z');
 	AM_address <= (others => 'Z');
 	AM_ByteEnable <= (others => 'Z');
@@ -100,6 +100,18 @@ begin
 	D_C_N <= 'Z';
 	
 	-- Write request
+	wait until rising_edge(clk);
+	nReset <= '1';
+	wait until rising_edge(clk);
+	-- buffer address
+	AS_writedata <= "10101010101010101010101010101010";
+	AS_address <= "0000";
+	wait until rising_edge(clk);
+	-- buffer length
+	AS_writedata <= X"1000";
+	AS_address <= "0001";
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
 	wait until rising_edge(clk);
 	end process simulation;
 end architecture test;

@@ -66,7 +66,7 @@ signal num_pixels			: integer := 0;
 --Constants
 
 constant MAX_PIXELS 			: integer := 76800; --320x240 pixels
-constant BURST_COUNT			: unsigned(7 downto 0) := "00010000";
+constant BURST_COUNT			: unsigned(7 downto 0) := X"28";
 constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := "11111111"; -- TODO
 
 --States of FSM

@@ -60,7 +60,6 @@ signal bursts_left		: unsigned(7 downto 0);
 signal newdata_interrupt: std_logic; 
 
 signal wait_LCD 			: integer;
-signal Indice				: integer;
 signal num_pixels			: integer := 0;
 
 --Constants
@@ -217,8 +216,6 @@ begin
 				AM_BurstCount <= std_logic_vector(BURST_COUNT);
 				AM_read <= '1';
 				AM_ByteEnable <= "0000";
-				Indice <= To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
-				AM_ByteEnable(Indice) <= '1';
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus
@@ -236,11 +233,7 @@ begin
 		
 			if AM_Rddatavalid = '1' then
 				FIFO_write <= '1';
-				FIFO_writedata(7 downto 0) 	<= AM_readdata(7 downto 0);
-				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
-				FIFO_writedata(23 downto 16) <= AM_readdata(23 downto 16);
-				FIFO_writedata(31 downto 24) <= AM_readdata(31 downto 24);
-				AM_state <= AM_wait_data;
+				FIFO_writedata <= AM_readdata;
 				DataAck <= '0';
 				if CntLength /= 1 then	-- not end of buffer, increment address
 					CntAddress <= CntAddress + 4; -- is that correct?
@@ -268,6 +261,7 @@ begin
 				AM_state <= AM_idle;
 			end if;	
 		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
+			AM_BurstCount <= (others => '0');
 			if FIFO_usedw < ALMOST_FULL then
 				AM_state <= AM_idle;
 			end if;

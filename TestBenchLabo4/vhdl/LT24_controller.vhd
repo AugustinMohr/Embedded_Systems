@@ -67,7 +67,7 @@ signal num_pixels			: integer := 0;
 --Constants
 
 constant MAX_PIXELS 			: integer := 76800; --320x240 pixels
-constant BURST_COUNT			: unsigned(7 downto 0) := X"28";
+constant BURST_COUNT			: unsigned(7 downto 0) := X"03";
 constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := "11111111"; -- TODO
 
 --States of FSM
@@ -239,7 +239,6 @@ begin
 				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
 				FIFO_writedata(23 downto 16) <= AM_readdata(23 downto 16);
 				FIFO_writedata(31 downto 24) <= AM_readdata(31 downto 24);
-				AM_state <= AM_wait_data;
 				DataAck <= '0';
 				if CntLength /= 1 then	-- not end of buffer, increment address
 					CntAddress <= CntAddress + 4; -- is that correct?

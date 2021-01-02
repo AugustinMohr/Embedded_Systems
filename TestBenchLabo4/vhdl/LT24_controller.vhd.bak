@@ -221,7 +221,7 @@ begin
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus
-			AM_stat <= "0001";
+			AM_stat <= "0010";
 			if AM_waitRQ = '0' then
 				AM_state <= AM_acq_data;
 				AM_BurstCount <= (others => '0');
@@ -239,7 +239,6 @@ begin
 				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
 				FIFO_writedata(23 downto 16) <= AM_readdata(23 downto 16);
 				FIFO_writedata(31 downto 24) <= AM_readdata(31 downto 24);
-				AM_state <= AM_wait_data;
 				DataAck <= '0';
 				if CntLength /= 1 then	-- not end of buffer, increment address
 					CntAddress <= CntAddress + 4; -- is that correct?

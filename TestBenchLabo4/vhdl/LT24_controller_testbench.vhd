@@ -113,7 +113,7 @@ begin
 	AM_waitRQ <= '1';
 	
 	-- Write request
-	wait until rising_edge(clk);
+	wait until rising_edge(clk); -- 1
 	nReset <= '1';
 	wait until rising_edge(clk);
 	-- buffer address
@@ -127,7 +127,7 @@ begin
 	AS_address <= "0001";
 	wait until rising_edge(clk);
 	AS_write <= '0';
-	wait until rising_edge(clk);
+	wait until rising_edge(clk); -- 5
 	AM_readdata <= (others => '1');
 	AM_waitRQ <= '0';
 	wait until rising_edge(clk);
@@ -135,6 +135,21 @@ begin
 	AM_Rddatavalid <= '1';
 	wait until rising_edge(clk);
 	AM_waitRQ <= '0';
+	-- buffer length to 0
+	AS_writedata <= X"00000000";
+	AS_address <= "0001";
+	AS_CS <= '1';
+	AS_write <= '1';
+	wait until rising_edge(clk);
+	AS_write <= '0';
+	wait until rising_edge(clk);
+	wait until rising_edge(clk); -- 10
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	AS_write <= '1';
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk); -- 15
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
@@ -142,6 +157,11 @@ begin
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
-	
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
+	wait until rising_edge(clk);
 	end process simulation;
 end architecture test;

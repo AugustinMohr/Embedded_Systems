@@ -1,9 +1,0 @@
-E:/EPFL/Semestre_7/Embedded_Systems/TestBenchLabo4/vhdl/FIFO.vhd {1 {vcom -work work -2002 -explicit -stats=none E:/EPFL/Semestre_7/Embedded_Systems/TestBenchLabo4/vhdl/FIFO.vhd
-Model Technology ModelSim - Intel FPGA Edition vcom 10.5b Compiler 2016.10 Oct  5 2016
--- Loading package STANDARD
--- Loading package TEXTIO
--- Loading package std_logic_1164
--- Compiling entity FIFO
--- Compiling architecture SYN of fifo
-
-} {} {}}

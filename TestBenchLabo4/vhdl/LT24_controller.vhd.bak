@@ -7,7 +7,7 @@ entity LT24_controller is
 
 	port(
 	
-		clk		: in std_logic;
+		clk		: in std_logic := 'Z';
 		nReset	: in std_logic;
 		
 		
@@ -27,7 +27,8 @@ entity LT24_controller is
 		AM_waitRQ			: in std_logic;
 		AM_Rddatavalid		: in std_logic;
 		AM_BurstCount		: out std_logic_vector(7 downto 0);
-		
+		AM_stat			: out std_logic_vector(3 downto 0);		
+
 		-- Lcd Output
 		LCD_ON				: out std_logic;
 		CS_N					: out std_logic;
@@ -198,7 +199,7 @@ begin
 		case AM_state is
 	
 		when AM_idle =>
-		
+			AM_stat <= "0000";
 			if buffer_length /= X"0000_0000" then -- if length /= 0
 				AM_state <= AM_wait_data;
 				CntAddress <= buffer_address; 
@@ -206,7 +207,7 @@ begin
 			end if;
 			
 		when AM_wait_data =>
-			
+			AM_stat <= "0001";
 			if buffer_length = X"0000_0000" then -- go back to idle if buffer length = 0
 				AM_state <= AM_idle;
 			elsif FIFO_usedw >= ALMOST_FULL then 
@@ -217,12 +218,10 @@ begin
 				AM_BurstCount <= std_logic_vector(BURST_COUNT);
 				AM_read <= '1';
 				AM_ByteEnable <= "0000";
-				Indice <= To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
-				AM_ByteEnable(Indice) <= '1';
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus
-		
+			AM_stat <= "0001";
 			if AM_waitRQ = '0' then
 				AM_state <= AM_acq_data;
 				AM_BurstCount <= (others => '0');
@@ -233,7 +232,7 @@ begin
 			end if;
 		
 		when AM_acq_data =>	-- wait end of request
-		
+			AM_stat <= "0011";
 			if AM_Rddatavalid = '1' then
 				FIFO_write <= '1';
 				FIFO_writedata(7 downto 0) 	<= AM_readdata(7 downto 0);
@@ -261,6 +260,7 @@ begin
 			end if;
 			
 		when AM_wait_interrupt => -- Wait for processor to deactivate interrupt
+			AM_stat <= "0100";
 			if newdata_interrupt = '0' then
 				newdata_interrupt <= '1'; -- Set to 1 so that next time it arrives at end of buffer it will interrupt
 				CntAddress <= buffer_address;
@@ -268,6 +268,7 @@ begin
 				AM_state <= AM_idle;
 			end if;	
 		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
+			AM_stat <= "0101";
 			if FIFO_usedw < ALMOST_FULL then
 				AM_state <= AM_idle;
 			end if;

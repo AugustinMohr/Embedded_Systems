@@ -128,7 +128,6 @@ begin
 	wait until rising_edge(clk);
 	AS_write <= '0';
 	wait until rising_edge(clk);
-	AM_readdata <= (others => '1');
 	AM_waitRQ <= '0';
 	wait until rising_edge(clk);
 	AM_waitRQ <= '1';

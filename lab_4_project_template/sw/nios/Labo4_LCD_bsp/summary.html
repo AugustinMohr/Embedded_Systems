@@ -16,16 +16,16 @@
 <td width="20%" bgcolor="#77BBFF">CPU:</td><td>nios2_gen2_0</td>
 </tr>
 <tr mode="wrap">
-<td width="20%" bgcolor="#77BBFF">BSP Settings File:</td><td>.\settings.bsp</td>
+<td width="20%" bgcolor="#77BBFF">BSP Settings File:</td><td>settings.bsp</td>
 </tr>
 <tr mode="wrap">
 <td width="20%" bgcolor="#77BBFF">BSP Version:</td><td>default</td>
 </tr>
 <tr mode="wrap">
-<td width="20%" bgcolor="#77BBFF">BSP Generated On:</td><td>2 janv. 2021 10:48:43</td>
+<td width="20%" bgcolor="#77BBFF">BSP Generated On:</td><td>Jan 2, 2021 1:27:45 PM</td>
 </tr>
 <tr mode="wrap">
-<td width="20%" bgcolor="#77BBFF">BSP Generated Timestamp:</td><td>1609580923972</td>
+<td width="20%" bgcolor="#77BBFF">BSP Generated Timestamp:</td><td>1609590465455</td>
 </tr>
 <tr mode="wrap">
 <td width="20%" bgcolor="#77BBFF">BSP Generated Location:</td><td>E:\EPFL\Semestre_7\Embedded_Systems\lab_4_project_template\sw\nios\Labo4_LCD_bsp</td>
@@ -38,6 +38,9 @@
 <th align="left" width="20%">Slave Descriptor</th><th align="left" width="40%">Address Range</th><th align="left" width="20%">Size</th><th align="left" width="20%">Attributes</th>
 </tr>
 <tr mode="wrap" STYLE="display: 'block'; font-family: 'courier'; color: '#000000'; font-weight: '500'; font-size: '14'; margin-top: '10pt'; text-align: 'left'">
+<td>hps_0_bridges</td><td>0x40000000 - 0x4FFFFFFF</td><td>268435456</td><td class="listing">&nbsp;</td>
+</tr>
+<tr mode="wrap" STYLE="display: 'block'; font-family: 'courier'; color: '#000000'; font-weight: '500'; font-size: '14'; margin-top: '10pt'; text-align: 'left'">
 <td>onchip_memory2_0</td><td>0x10100000 - 0x1011FFFF</td><td>131072</td><td class="listing">memory</td>
 </tr>
 <tr mode="wrap" STYLE="display: 'block'; font-family: 'courier'; color: '#000000'; font-weight: '500'; font-size: '14'; margin-top: '10pt'; text-align: 'left'">
@@ -45,9 +48,6 @@
 </tr>
 <tr mode="wrap" STYLE="display: 'block'; font-family: 'courier'; color: '#000000'; font-weight: '500'; font-size: '14'; margin-top: '10pt'; text-align: 'left'">
 <td>jtag_uart_0</td><td>0x10000800 - 0x10000807</td><td>8</td><td class="listing">printable</td>
-</tr>
-<tr mode="wrap" STYLE="display: 'block'; font-family: 'courier'; color: '#000000'; font-weight: '500'; font-size: '14'; margin-top: '10pt'; text-align: 'left'">
-<td>hps_0_bridges</td><td>0x00000000 - 0x0FFFFFFF</td><td>268435456</td><td class="listing">&nbsp;</td>
 </tr>
 <tr mode="wrap" STYLE="display: 'block'; font-family: 'courier'; color: '#000000'; font-weight: '500'; font-size: '14'; margin-top: '10pt'; text-align: 'left'">
 <td>LCD_controller_0</td><td>0x00000000 - 0x0000003F</td><td>64</td><td class="listing">&nbsp;</td>
@@ -87,6 +87,19 @@
 <td>.stack</td><td>onchip_memory2_0</td>
 </tr>
 </table>
+<br>
+<br>
+<h3>Software Packages</h3>
+<table border="1" bgcolor="#FFFFCC" width="50%">
+<tr bgcolor="#77BBFF" mode="wrap">
+<th align="left" width="15%">Software Package</th><th align="left" width="15%">Version</th>
+</tr>
+<tr mode="wrap" STYLE="display: 'block'; font-family: 'courier'; color: '#000000'; font-weight: '500'; font-size: '14'; margin-top: '10pt'; text-align: 'left'">
+<td>altera_hostfs</td><td>default</td>
+</tr>
+</table>
+<br>
+<br>
 <h3>Settings</h3>
 <table border="1" bgcolor="#FFFFCC" width="60%">
 <tr bgcolor="#77BBFF">
@@ -136,6 +149,33 @@
 </tr>
 <tr mode="wrap">
 <td width="20%">Description:</td><td>Small-footprint (polled mode) driver</td>
+</tr>
+<tr mode="wrap">
+<td width="20%">Restrictions:</td><td>none</td>
+</tr>
+</table>
+<br>
+<table border="1" bgcolor="#FFFFCC" width="60%">
+<tr bgcolor="#77BBFF">
+<td align="left" width="15%">Setting Name:</td><td align="left">altera_hostfs.hostfs_name</td>
+</tr>
+<tr>
+<td width="20%">Identifier:</td><td>ALTERA_HOSTFS_NAME</td>
+</tr>
+<tr>
+<td width="20%">Default Value:</td><td>/mnt/host</td>
+</tr>
+<tr>
+<td width="20%">Value:</td><td>/mnt/host</td>
+</tr>
+<tr>
+<td width="20%">Type:</td><td>QuotedString</td>
+</tr>
+<tr mode="wrap">
+<td width="20%">Destination:</td><td>system_h_define</td>
+</tr>
+<tr mode="wrap">
+<td width="20%">Description:</td><td>Mount point</td>
 </tr>
 <tr mode="wrap">
 <td width="20%">Restrictions:</td><td>none</td>

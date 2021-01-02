@@ -3,7 +3,7 @@
 
 
 
-
+char* filename = "/mnt/host/image.ppm";
 
 
 

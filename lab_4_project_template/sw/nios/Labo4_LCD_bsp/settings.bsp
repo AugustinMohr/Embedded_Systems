@@ -2,10 +2,10 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>2 janv. 2021 10:48:43</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1609580923972</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>Jan 2, 2021 1:27:45 PM</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1609590465455</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>E:\EPFL\Semestre_7\Embedded_Systems\lab_4_project_template\sw\nios\Labo4_LCD_bsp</BspGeneratedLocation>
-        <BspSettingsFile>.\settings.bsp</BspSettingsFile>
+        <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>E:\EPFL\Semestre_7\Embedded_Systems\lab_4_project_template\hw\quartus\soc_system.sopcinfo</SopcDesignFile>
         <JdiFile>default</JdiFile>
         <Cpu>nios2_gen2_0</Cpu>
@@ -898,16 +898,22 @@
                 <Enabled>false</Enabled>
                 <Group xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
         </Setting>
+        <Setting>
+                <SettingName>altera_hostfs.hostfs_name</SettingName>
+                <Identifier>ALTERA_HOSTFS_NAME</Identifier>
+                <Type>QuotedString</Type>
+                <Value>/mnt/host</Value>
+                <DefaultValue>/mnt/host</DefaultValue>
+                <DestinationFile>system_h_define</DestinationFile>
+                <Description>Mount point</Description>
+                <Restrictions>none</Restrictions>
+                <Enabled>false</Enabled>
+                <Group xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        </Setting>
         <MemoryMap>
                 <slaveDescriptor>LCD_controller_0</slaveDescriptor>
                 <addressRange>0x00000000 - 0x0000003F</addressRange>
                 <addressSpan>64</addressSpan>
-                <attributes/>
-        </MemoryMap>
-        <MemoryMap>
-                <slaveDescriptor>hps_0_bridges</slaveDescriptor>
-                <addressRange>0x00000000 - 0x0FFFFFFF</addressRange>
-                <addressSpan>268435456</addressSpan>
                 <attributes/>
         </MemoryMap>
         <MemoryMap>
@@ -927,6 +933,12 @@
                 <addressRange>0x10100000 - 0x1011FFFF</addressRange>
                 <addressSpan>131072</addressSpan>
                 <attributes>memory</attributes>
+        </MemoryMap>
+        <MemoryMap>
+                <slaveDescriptor>hps_0_bridges</slaveDescriptor>
+                <addressRange>0x40000000 - 0x4FFFFFFF</addressRange>
+                <addressSpan>268435456</addressSpan>
+                <attributes/>
         </MemoryMap>
         <LinkerSection>
                 <sectionName>.text</sectionName>
@@ -952,4 +964,8 @@
                 <sectionName>.stack</sectionName>
                 <regionName>onchip_memory2_0</regionName>
         </LinkerSection>
+        <SoftwarePackageInfo>
+                <name>altera_hostfs</name>
+                <version>default</version>
+        </SoftwarePackageInfo>
 </sch:Settings>

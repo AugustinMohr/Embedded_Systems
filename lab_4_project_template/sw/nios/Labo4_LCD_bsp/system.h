@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'soc_system'
  * SOPC Builder design path: E:/EPFL/Semestre_7/Embedded_Systems/lab_4_project_template/hw/quartus/soc_system.sopcinfo
  *
- * Generated: Sat Jan 02 10:48:44 CET 2021
+ * Generated: Sat Jan 02 13:26:28 CET 2021
  */
 
 /*
@@ -68,7 +68,7 @@
 #define ALT_CPU_CPU_ID_SIZE 1
 #define ALT_CPU_CPU_ID_VALUE 0x00000000
 #define ALT_CPU_CPU_IMPLEMENTATION "fast"
-#define ALT_CPU_DATA_ADDR_WIDTH 0x1d
+#define ALT_CPU_DATA_ADDR_WIDTH 0x1f
 #define ALT_CPU_DCACHE_BYPASS_MASK 0x80000000
 #define ALT_CPU_DCACHE_LINE_SIZE 32
 #define ALT_CPU_DCACHE_LINE_SIZE_LOG2 5
@@ -109,7 +109,7 @@
 #define NIOS2_CPU_ID_SIZE 1
 #define NIOS2_CPU_ID_VALUE 0x00000000
 #define NIOS2_CPU_IMPLEMENTATION "fast"
-#define NIOS2_DATA_ADDR_WIDTH 0x1d
+#define NIOS2_DATA_ADDR_WIDTH 0x1f
 #define NIOS2_DCACHE_BYPASS_MASK 0x80000000
 #define NIOS2_DCACHE_LINE_SIZE 32
 #define NIOS2_DCACHE_LINE_SIZE_LOG2 5
@@ -200,6 +200,14 @@
 
 
 /*
+ * altera_hostfs configuration
+ *
+ */
+
+#define ALTERA_HOSTFS_NAME "/mnt/host"
+
+
+/*
  * hal configuration
  *
  */
@@ -216,7 +224,7 @@
  */
 
 #define ALT_MODULE_CLASS_hps_0_bridges hps_bridge_avalon
-#define HPS_0_BRIDGES_BASE 0x0
+#define HPS_0_BRIDGES_BASE 0x40000000
 #define HPS_0_BRIDGES_IRQ -1
 #define HPS_0_BRIDGES_IRQ_INTERRUPT_CONTROLLER_ID -1
 #define HPS_0_BRIDGES_NAME "/dev/hps_0_bridges"

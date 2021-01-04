@@ -70,7 +70,7 @@
 			lcd_controller_0_conduit_end_export_d_c_n   : out   std_logic;                                        -- export_d_c_n
 			lcd_controller_0_conduit_end_export_lcd_on  : out   std_logic;                                        -- export_lcd_on
 			lcd_controller_0_conduit_end_export_rd_n    : out   std_logic;                                        -- export_rd_n
-			lcd_controller_0_conduit_end_export_reset_n : inout std_logic                     := 'X';             -- export_reset_n
+			lcd_controller_0_conduit_end_export_reset_n : out   std_logic;                                        -- export_reset_n
 			lcd_controller_0_conduit_end_export_wr_n    : out   std_logic;                                        -- export_wr_n
 			pio_leds_external_connection_export         : out   std_logic_vector(7 downto 0);                     -- export
 			reset_reset_n                               : in    std_logic                     := 'X'              -- reset_n

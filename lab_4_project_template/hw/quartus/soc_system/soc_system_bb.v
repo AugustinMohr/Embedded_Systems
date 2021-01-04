@@ -145,7 +145,7 @@ module soc_system (
 	output		lcd_controller_0_conduit_end_export_d_c_n;
 	output		lcd_controller_0_conduit_end_export_lcd_on;
 	output		lcd_controller_0_conduit_end_export_rd_n;
-	inout		lcd_controller_0_conduit_end_export_reset_n;
+	output		lcd_controller_0_conduit_end_export_reset_n;
 	output		lcd_controller_0_conduit_end_export_wr_n;
 	output	[7:0]	pio_leds_external_connection_export;
 	input		reset_reset_n;

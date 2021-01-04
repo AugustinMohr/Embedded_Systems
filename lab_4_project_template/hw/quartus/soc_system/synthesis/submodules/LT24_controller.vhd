@@ -60,7 +60,6 @@ signal bursts_left		: unsigned(7 downto 0);
 signal newdata_interrupt: std_logic; 
 
 signal wait_LCD 			: integer;
-signal Indice				: integer;
 signal num_pixels			: integer := 0;
 
 --Constants
@@ -75,7 +74,7 @@ type LCD_states is (idle, begin_transfer, write_command, write_data, read_data, 
 signal LCD_state	: LCD_states;
 
 type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data, AM_wait_interrupt, AM_wait_FIFO);
-signal AM_state : AM_states;
+signal AM_state : AM_states := AM_idle;
 
 
 
@@ -217,8 +216,6 @@ begin
 				AM_BurstCount <= std_logic_vector(BURST_COUNT);
 				AM_read <= '1';
 				AM_ByteEnable <= "0000";
-				Indice := To_integer(CntAddress(1 downto 0)); -- 2 low addresses bit as offset activation
-				AM_ByteEnable(Indice) <= '1';
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus
@@ -236,11 +233,7 @@ begin
 		
 			if AM_Rddatavalid = '1' then
 				FIFO_write <= '1';
-				FIFO_writedata(7 downto 0) 	<= AM_readdata(7 downto 0);
-				FIFO_writedata(15 downto 8) 	<= AM_readdata(15 downto 8);
-				FIFO_writedata(23 downto 16) <= AM_readdata(23 downto 16);
-				FIFO_writedata(31 downto 24) <= AM_readdata(31 downto 24);
-				AM_state <= AM_wait_data;
+				FIFO_writedata <= AM_readdata;
 				DataAck <= '0';
 				if CntLength /= 1 then	-- not end of buffer, increment address
 					CntAddress <= CntAddress + 4; -- is that correct?
@@ -268,6 +261,7 @@ begin
 				AM_state <= AM_idle;
 			end if;	
 		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
+			AM_BurstCount <= (others => '0');
 			if FIFO_usedw < ALMOST_FULL then
 				AM_state <= AM_idle;
 			end if;
@@ -323,7 +317,7 @@ begin
 			D_C_N <= '0';
 			DATA(15 downto 8) <= x"00";
 			DATA(7 downto 0) <= LCD_command;
-			wait_LCD := wait_LCD + 1;
+			wait_LCD <= wait_LCD + 1;
 			if wait_LCD = 3 then
 				WR_N <= '1';
 				LCD_state <= idle;
@@ -333,7 +327,7 @@ begin
 			WR_N <= '0';
 			D_C_N <= '1';
 			DATA <= LCD_data;
-			wait_LCD := wait_LCD + 1;
+			wait_LCD <= wait_LCD + 1;
 			if wait_LCD = 3 then
 				WR_N <= '1';
 				LCD_state <= idle;
@@ -344,7 +338,7 @@ begin
 			elsif FIFO_empty = '0' then
 				FIFO_read <= '1';
 				D_C_N <= '1';
-				wait_LCD := 0;
+				wait_LCD <= 0;
 				LCD_state <= read_fifo;
 			end if;
 		when read_fifo =>
@@ -355,12 +349,15 @@ begin
 			if wait_LCD = 3 then
 				WR_N <= '1';
 				LCD_state <= idle;
-				num_pixels := num_pixels + 1;
+				num_pixels <= num_pixels + 1;
 			end if;
 			
 		when frame_finished =>
-				num_pixels := 0;															--TODO : Interrupt when the frame is finished 
-			
+				num_pixels <= 0;															--TODO : Interrupt when the frame is finished 
+		
+		when others =>
+			null;
+		
 		end case;
 	end if;
 

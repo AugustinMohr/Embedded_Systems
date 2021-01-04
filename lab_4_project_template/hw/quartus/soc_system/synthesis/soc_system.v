@@ -74,7 +74,7 @@ module soc_system (
 		output wire        lcd_controller_0_conduit_end_export_d_c_n,   //                             .export_d_c_n
 		output wire        lcd_controller_0_conduit_end_export_lcd_on,  //                             .export_lcd_on
 		output wire        lcd_controller_0_conduit_end_export_rd_n,    //                             .export_rd_n
-		inout  wire        lcd_controller_0_conduit_end_export_reset_n, //                             .export_reset_n
+		output wire        lcd_controller_0_conduit_end_export_reset_n, //                             .export_reset_n
 		output wire        lcd_controller_0_conduit_end_export_wr_n,    //                             .export_wr_n
 		output wire [7:0]  pio_leds_external_connection_export,         // pio_leds_external_connection.export
 		input  wire        reset_reset_n                                //                        reset.reset_n

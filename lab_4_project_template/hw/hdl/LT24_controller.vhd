@@ -136,8 +136,8 @@ begin
 			case AS_address is
 			when "0000" => buffer_address <= unsigned(AS_writedata);
 			when "0001" => buffer_length  <= unsigned(AS_writedata);
-			when "0010" => LCD_command		<= AS_writedata;
-			when "0011" => LCD_data			<= AS_writedata;
+			when "0010" => LCD_command		<= AS_writedata(7 downto 0);
+			when "0011" => LCD_data			<= AS_writedata(15 downto 0);
 			when "0100" =>
 			when "0101" =>
 			when "0110" =>
@@ -162,8 +162,8 @@ begin
 			case AS_address is
 				when "0000" => AS_readdata <= std_logic_vector(buffer_address);
 				when "0001" => AS_readdata <= std_logic_vector(buffer_length);
-				when "0010" => AS_readdata <= std_logic_vector(LCD_command);
-				when "0011" => AS_readdata <= std_logic_vector(LCD_data);
+				when "0010" => AS_readdata(7 downto 0) <= std_logic_vector(LCD_command);
+				when "0011" => AS_readdata(15 downto 0) <= std_logic_vector(LCD_data);
 				when "0100" =>
 				when "0101" =>
 				when "0110" =>

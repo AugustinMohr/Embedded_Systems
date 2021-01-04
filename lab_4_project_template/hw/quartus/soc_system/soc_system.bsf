@@ -332,6 +332,13 @@ refer to the applicable agreement for further details.
 		(line (pt 0 968)(pt 256 968)(line_width 1))
 	)
 	(port
+		(pt 0 984)
+		(output)
+		(text "lcd_controller_0_conduit_end_export_reset_n" (rect 0 0 182 12)(font "Arial" (font_size 8)))
+		(text "lcd_controller_0_conduit_end_export_reset_n" (rect 4 973 262 984)(font "Arial" (font_size 8)))
+		(line (pt 0 984)(pt 256 984)(line_width 1))
+	)
+	(port
 		(pt 0 1000)
 		(output)
 		(text "lcd_controller_0_conduit_end_export_wr_n" (rect 0 0 172 12)(font "Arial" (font_size 8)))
@@ -533,13 +540,6 @@ refer to the applicable agreement for further details.
 		(text "hps_0_io_hps_io_gpio_inst_GPIO61" (rect 0 0 145 12)(font "Arial" (font_size 8)))
 		(text "hps_0_io_hps_io_gpio_inst_GPIO61" (rect 4 853 196 864)(font "Arial" (font_size 8)))
 		(line (pt 0 864)(pt 256 864)(line_width 1))
-	)
-	(port
-		(pt 0 984)
-		(bidir)
-		(text "lcd_controller_0_conduit_end_export_reset_n" (rect 0 0 182 12)(font "Arial" (font_size 8)))
-		(text "lcd_controller_0_conduit_end_export_reset_n" (rect 4 973 262 984)(font "Arial" (font_size 8)))
-		(line (pt 0 984)(pt 256 984)(line_width 1))
 	)
 	(drawing
 		(text "clk" (rect 241 43 500 99)(font "Arial" (color 128 0 0)(font_size 9)))

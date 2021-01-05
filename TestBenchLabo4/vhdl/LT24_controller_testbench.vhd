@@ -28,7 +28,7 @@ architecture test of LT24_testbench is
 	signal	AM_readdata			: std_logic_vector(31 downto 0);	-- in
 	signal	AM_waitRQ			: std_logic;							-- in
 	signal	AM_Rddatavalid		: std_logic;							-- in
-	signal AM_stat			: std_logic_vector(3 downto 0);
+	signal LCD_stat			: std_logic_vector(2 downto 0);
 		
 		-- Lcd Output
 	signal	LCD_ON				: std_logic;							-- out
@@ -69,7 +69,7 @@ begin
 		WR_N => WR_N,
 		D_C_N => D_C_N,
 
-		AM_stat => AM_stat 
+		LCD_stat => LCD_stat
 		);
 		
 	-- Generate clock signal
@@ -146,7 +146,11 @@ begin
 	wait until rising_edge(clk); -- 10
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
+	--LCD Command
 	AS_write <= '1';
+	AS_CS <= '1';
+	AS_writedata <= X"00000011";
+	AS_address <= "0010";
 	wait until rising_edge(clk);
 	wait until rising_edge(clk);
 	wait until rising_edge(clk); -- 15

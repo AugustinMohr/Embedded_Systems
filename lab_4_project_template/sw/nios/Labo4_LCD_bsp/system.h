@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'soc_system'
  * SOPC Builder design path: C:/Users/nicca/DeskDoc/EmbeddedSystems/Embedded_Systems/lab_4_project_template/hw/quartus/soc_system.sopcinfo
  *
- * Generated: Tue Jan 05 12:15:40 CET 2021
+ * Generated: Tue Jan 05 18:09:59 CET 2021
  */
 
 /*
@@ -90,7 +90,7 @@
 #define ALT_CPU_ICACHE_LINE_SIZE_LOG2 5
 #define ALT_CPU_ICACHE_SIZE 4096
 #define ALT_CPU_INITDA_SUPPORTED
-#define ALT_CPU_INST_ADDR_WIDTH 0x1d
+#define ALT_CPU_INST_ADDR_WIDTH 0x1f
 #define ALT_CPU_NAME "nios2_gen2_0"
 #define ALT_CPU_NUM_OF_SHADOW_REG_SETS 0
 #define ALT_CPU_OCI_VERSION 1
@@ -130,7 +130,7 @@
 #define NIOS2_ICACHE_LINE_SIZE_LOG2 5
 #define NIOS2_ICACHE_SIZE 4096
 #define NIOS2_INITDA_SUPPORTED
-#define NIOS2_INST_ADDR_WIDTH 0x1d
+#define NIOS2_INST_ADDR_WIDTH 0x1f
 #define NIOS2_NUM_OF_SHADOW_REG_SETS 0
 #define NIOS2_OCI_VERSION 1
 #define NIOS2_RESET_ADDR 0x10100000
@@ -197,6 +197,14 @@
 #define ALT_STDOUT_PRESENT
 #define ALT_STDOUT_TYPE "altera_avalon_jtag_uart"
 #define ALT_SYSTEM_NAME "soc_system"
+
+
+/*
+ * altera_hostfs configuration
+ *
+ */
+
+#define ALTERA_HOSTFS_NAME "/mnt/host"
 
 
 /*

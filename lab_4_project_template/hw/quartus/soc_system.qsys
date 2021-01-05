@@ -891,8 +891,8 @@
   <parameter name="icache_size" value="4096" />
   <parameter name="icache_tagramBlockType" value="Automatic" />
   <parameter name="impl" value="Fast" />
-  <parameter name="instAddrWidth" value="29" />
-  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='nios2_gen2_0.debug_mem_slave' start='0x10000000' end='0x10000800' type='altera_nios2_gen2.debug_mem_slave' /><slave name='onchip_memory2_0.s1' start='0x10100000' end='0x10120000' type='altera_avalon_onchip_memory2.s1' /></address-map>]]></parameter>
+  <parameter name="instAddrWidth" value="31" />
+  <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='LCD_controller_0.as' start='0x0' end='0x40' type='LCD_controller.as' /><slave name='nios2_gen2_0.debug_mem_slave' start='0x10000000' end='0x10000800' type='altera_nios2_gen2.debug_mem_slave' /><slave name='jtag_uart_0.avalon_jtag_slave' start='0x10000800' end='0x10000808' type='altera_avalon_jtag_uart.avalon_jtag_slave' /><slave name='pio_leds.s1' start='0x10000810' end='0x10000820' type='altera_avalon_pio.s1' /><slave name='onchip_memory2_0.s1' start='0x10100000' end='0x10120000' type='altera_avalon_onchip_memory2.s1' /><slave name='hps_0_bridges.f2h_sdram0_data' start='0x40000000' end='0x50000000' type='hps_bridge_avalon.f2h_sdram0_data' /></address-map>]]></parameter>
   <parameter name="instructionMasterHighPerformanceAddrWidth" value="1" />
   <parameter name="instructionMasterHighPerformanceMapParam" value="" />
   <parameter name="instruction_master_high_performance_paddr_base" value="0" />
@@ -1151,6 +1151,24 @@
    kind="avalon"
    version="18.1"
    start="nios2_gen2_0.instruction_master"
+   end="LCD_controller_0.as">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x0000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="nios2_gen2_0.instruction_master"
+   end="jtag_uart_0.avalon_jtag_slave">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x10000800" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="nios2_gen2_0.instruction_master"
    end="nios2_gen2_0.debug_mem_slave">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x10000000" />
@@ -1163,6 +1181,24 @@
    end="onchip_memory2_0.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x10100000" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="nios2_gen2_0.instruction_master"
+   end="pio_leds.s1">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x10000810" />
+  <parameter name="defaultConnection" value="false" />
+ </connection>
+ <connection
+   kind="avalon"
+   version="18.1"
+   start="nios2_gen2_0.instruction_master"
+   end="address_span_extender_0.windowed_slave">
+  <parameter name="arbitrationPriority" value="1" />
+  <parameter name="baseAddress" value="0x40000000" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection kind="clock" version="18.1" start="clk_0.clk" end="nios2_gen2_0.clk" />

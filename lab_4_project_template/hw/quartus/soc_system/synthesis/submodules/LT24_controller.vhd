@@ -18,6 +18,7 @@ entity LT24_controller is
 		AS_writedata		: in std_logic_vector(31 downto 0);
 		AS_read				: in std_logic;
 		AS_readdata			: out std_logic_vector(31 downto 0);
+		AS_irq				: out std_logic;
 		
 		-- Avalon Master
 		AM_address			: out std_logic_vector(31 downto 0);
@@ -49,11 +50,11 @@ architecture comp of LT24_controller is
 
 signal buffer_address 	: unsigned(31 downto 0);
 signal buffer_length  	: unsigned(31 downto 0);
-signal LCD_command		: std_logic_vector(7 downto 0)  := (others => 'Z');
-signal LCD_data			: std_logic_vector(15 downto 0) := (others => 'Z');
+signal LCD_command		: std_logic_vector(7 downto 0);
+signal LCD_data			: std_logic_vector(15 downto 0);
 
+signal test 				: std_logic_vector(31 downto 0);
 
-signal command_mode		: std_logic;
 signal DataAck				: std_logic;	-- TODO: is this useful?
 signal CntAddress			: unsigned(31 downto 0);
 signal CntLength			: unsigned(31 downto 0);
@@ -71,7 +72,7 @@ constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := "11111111"; -- TODO
 
 --States of FSM
 
-type LCD_states is (idle, write_command, write_data, write_pixel);
+type LCD_states is (idle, write_command, write_data, write_pixel, full_frame_done);
 signal LCD_state	: LCD_states;
 
 type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data, AM_wait_interrupt, AM_wait_FIFO);
@@ -139,7 +140,7 @@ begin
 			when "0001" => buffer_length  <= unsigned(AS_writedata);
 			when "0010" => LCD_command		<= AS_writedata(7 downto 0);
 			when "0011" => LCD_data			<= AS_writedata(15 downto 0);
-			when "0100" =>
+			when "0100" => test				<= AS_writedata;
 			when "0101" =>
 			when "0110" =>
 			when "0111" =>
@@ -165,7 +166,7 @@ begin
 				when "0001" => AS_readdata <= std_logic_vector(buffer_length);
 				when "0010" => AS_readdata(7 downto 0) <= std_logic_vector(LCD_command);
 				when "0011" => AS_readdata(15 downto 0) <= std_logic_vector(LCD_data);
-				when "0100" =>
+				when "0100" => AS_readdata <= test;
 				when "0101" =>
 				when "0110" =>
 				when "0111" =>
@@ -295,20 +296,21 @@ begin
 				wait_LCD <= 0;	
 				DATA <= (others => 'Z');
 			
-			if lcd_command /= (others => 'Z') then --If a command has been sent to the AS by the processor
-				
+			if AS_CS = '1' and AS_write = '1' and AS_address = "0010" then --If a command has been sent to the AS by the processor
+
 				LCD_state <= write_command;
-			elsif not FIFO_empty then
+			elsif FIFO_empty = '0' then
 				LCD_state <= write_pixel;  --If there is no command and there are pixels to display
 				
 			end if;
 			
 			when write_command =>
 				wait_LCD <= wait_LCD + 1;
+				
 				case wait_LCD is
 				
 				when 1 =>
-					C_S_N <= '0';
+					CS_N <= '0';
 					WR_N <= '0';
 					D_C_N <= '0';
 					DATA(15 downto 8) <= (others => '0');	--Set the data port with the command
@@ -320,21 +322,24 @@ begin
 				when 3 =>
 					D_C_N <= '1';
 					DATA <= (others => 'Z');					--Negate the command on the data port
-					LCD_command <= (others => 'Z');
+					
 				when 4 =>
-					if lcd_data /= (others => 'Z') then		--Check if there is any parameter for the command
+					if AS_CS = '1' and AS_write = '1' and AS_address = "0011" then		--Check if there is any parameter for the command
 						LCD_state <= write_data;
 					else
 						LCD_state <= idle;
 					end if;
+				when others =>
+					LCD_state <= idle;
 				end case;
 				
 				when write_data =>
 				wait_LCD <= wait_LCD + 1;
+				
 				case wait_LCD is
 				
 				when 1 =>
-					C_S_N <= '0';
+					CS_N <= '0';
 					WR_N <= '0';
 					D_C_N <= '1';
 					DATA(15 downto 8) <= (others => '0');	--Set the data port with the parameter/data
@@ -344,15 +349,16 @@ begin
 					WR_N <= '1';									--Write parameter to LCD
 					
 				when 3 =>
-					DATA <= (others => 'Z');
-					LCD_command <= (others => 'Z');			--Negate the data port
+					DATA <= (others => 'Z');					--Negate the data port
+							
 				when 4 =>
-					if lcd_data /= (others => 'Z') then		--Check if there is more parameter for the command.
+					if AS_CS = '1' and AS_write = '1' and AS_address = "0011" then		--Check if there is more parameter for the command.
 						LCD_state <= write_data;
 					else
 						LCD_state <= idle;
 					end if;
-				
+				when others =>
+					LCD_state <= idle;
 				end case;
 				
 			when write_pixel =>
@@ -362,20 +368,30 @@ begin
 				when 1 => 
 					FIFO_read <= '1'; --Request read from the FIFO
 				when 2 =>
-					C_S_N <= '0';
+					CS_N <= '0';
 					WR_N <= '0';
 					D_C_N <= '1';
 					DATA <= FIFO_readdata; --Read from FIFO
 					FIFO_read <= '0';
 				when 3 =>
-					WR_N = '1';				-- Write to LCD
+					WR_N <= '1';				-- Write to LCD
 				when 4 =>
 					DATA <= (others => 'Z');
-					num_pixels = num_pixels + 1;	-- Increment pixel count
+					num_pixels <= num_pixels + 1;	-- Increment pixel count
+					LCD_state <= idle;
+					if num_pixels = MAX_PIXELS then
+						LCD_state <= full_frame_done;
+					else
+						LCD_state <= idle;
+					end if;
+				when others =>
 					LCD_state <= idle;
 				end case;
-				
-			when others =>
+					
+			when full_frame_done =>	--TODO Implement interruption for the processor to know the frame has been displayed and that the camera can get a new frame.
+					LCD_state <= idle; --Temporary : Goes back to idle
+								
+			when others =>		
 				null;
 		
 		end case;

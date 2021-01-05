@@ -268,7 +268,7 @@ architecture rtl of soc_system is
 			d_writedata                         : out std_logic_vector(31 downto 0);                    -- writedata
 			d_readdatavalid                     : in  std_logic                     := 'X';             -- readdatavalid
 			debug_mem_slave_debugaccess_to_roms : out std_logic;                                        -- debugaccess
-			i_address                           : out std_logic_vector(28 downto 0);                    -- address
+			i_address                           : out std_logic_vector(30 downto 0);                    -- address
 			i_read                              : out std_logic;                                        -- read
 			i_readdata                          : in  std_logic_vector(31 downto 0) := (others => 'X'); -- readdata
 			i_waitrequest                       : in  std_logic                     := 'X';             -- waitrequest
@@ -337,7 +337,7 @@ architecture rtl of soc_system is
 			nios2_gen2_0_data_master_write                       : in  std_logic                     := 'X';             -- write
 			nios2_gen2_0_data_master_writedata                   : in  std_logic_vector(31 downto 0) := (others => 'X'); -- writedata
 			nios2_gen2_0_data_master_debugaccess                 : in  std_logic                     := 'X';             -- debugaccess
-			nios2_gen2_0_instruction_master_address              : in  std_logic_vector(28 downto 0) := (others => 'X'); -- address
+			nios2_gen2_0_instruction_master_address              : in  std_logic_vector(30 downto 0) := (others => 'X'); -- address
 			nios2_gen2_0_instruction_master_waitrequest          : out std_logic;                                        -- waitrequest
 			nios2_gen2_0_instruction_master_read                 : in  std_logic                     := 'X';             -- read
 			nios2_gen2_0_instruction_master_readdata             : out std_logic_vector(31 downto 0);                    -- readdata
@@ -638,7 +638,7 @@ architecture rtl of soc_system is
 	signal nios2_gen2_0_data_master_writedata                                     : std_logic_vector(31 downto 0); -- nios2_gen2_0:d_writedata -> mm_interconnect_0:nios2_gen2_0_data_master_writedata
 	signal nios2_gen2_0_instruction_master_readdata                               : std_logic_vector(31 downto 0); -- mm_interconnect_0:nios2_gen2_0_instruction_master_readdata -> nios2_gen2_0:i_readdata
 	signal nios2_gen2_0_instruction_master_waitrequest                            : std_logic;                     -- mm_interconnect_0:nios2_gen2_0_instruction_master_waitrequest -> nios2_gen2_0:i_waitrequest
-	signal nios2_gen2_0_instruction_master_address                                : std_logic_vector(28 downto 0); -- nios2_gen2_0:i_address -> mm_interconnect_0:nios2_gen2_0_instruction_master_address
+	signal nios2_gen2_0_instruction_master_address                                : std_logic_vector(30 downto 0); -- nios2_gen2_0:i_address -> mm_interconnect_0:nios2_gen2_0_instruction_master_address
 	signal nios2_gen2_0_instruction_master_read                                   : std_logic;                     -- nios2_gen2_0:i_read -> mm_interconnect_0:nios2_gen2_0_instruction_master_read
 	signal nios2_gen2_0_instruction_master_readdatavalid                          : std_logic;                     -- mm_interconnect_0:nios2_gen2_0_instruction_master_readdatavalid -> nios2_gen2_0:i_readdatavalid
 	signal mm_interconnect_0_lcd_controller_0_as_chipselect                       : std_logic;                     -- mm_interconnect_0:LCD_controller_0_as_chipselect -> LCD_controller_0:AS_CS

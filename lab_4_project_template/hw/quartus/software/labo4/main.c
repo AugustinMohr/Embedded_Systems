@@ -14,8 +14,13 @@
  *
  */
 
+
+void LCD_Init(void);
+void LCD_reset(void);
+void waitms(void);
+
 #include <stdio.h>
-#include <io.h>
+#include "system.h"
 
 // defines
 #define LCD_CONTROLLER_0_BASE   0x0
@@ -26,12 +31,47 @@
 
 #define PIO_LEDS_BASE 0x10000810
 
+void waitms(int time) {
+    while(time--)
+        ussleep(1000);
+}
+
+void LCD_Init(void) {
+
+    // software reset
+    LCD_reset();
+    waitms(120);
+
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0011); // exit sleep
+    waitms(1);
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0036); // Memory access control (MADCTL B5 = 1)
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0020); // MY MX MV ML_BGR MH 0 0 -> 0b0010 0000
+    waitms(1);
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x002A); // Column Address Set
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0000); // SC0-7
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0000); // SC8-15 -> 0x0000
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0001); // EC0-7
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x003F); // EC8-15 -> 0x013F
+    waitms(1);
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x002B); // Page Address Set
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0000); // SP0-7
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0000); // SP8-15 -> 0x0000
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0000); // EP0-7
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x00EF); // EP8-15 -> 0x00EF
+}
+void LCD_reset(void) {
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0001);
+}
+
 int main(void)
 {
     printf("start:\n");
+    LCD_init();
+    LCD_Clear(0X0000);
 
-    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, 0x0001);
     IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0x00);
 
+
+    LCD_Pattern_Horizon();
     return 0;
 }

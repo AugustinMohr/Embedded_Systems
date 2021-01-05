@@ -12,4 +12,5 @@
  </systemtable>
  <library expandedCategories="Project,Library" />
  <window width="2559" height="1400" x="0" y="0" />
+ <generation synthesis="VHDL" path="_PROJECT_NAME_" />
 </preferences>

@@ -2347,7 +2347,7 @@ parameters are a RESULT of the module parameters. -->
 the requested settings for a module instance. -->
   <assignment>
    <name>cmsis.svd.file</name>
-   <value>C:/intelfpga_lite/18.1/ip/altera/hps/altera_hps/altera_hps.svd</value>
+   <value>D:/quartus/ip/altera/hps/altera_hps/altera_hps.svd</value>
   </assignment>
   <assignment>
    <name>cmsis.svd.suffix</name>

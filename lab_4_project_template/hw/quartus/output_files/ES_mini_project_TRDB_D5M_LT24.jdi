@@ -1,6 +1,6 @@
 <sld_project_info>
   <project>
-    <hash md5_digest_80b="ac89e7dab052db684bb1"/>
+    <hash md5_digest_80b="36993feceb9694266cfa"/>
   </project>
   <file_info>
     <file device="5CSEMA4U23C6" path="ES_mini_project_TRDB_D5M_LT24_time_limited.sof" usercode="0xFFFFFFFF"/>
@@ -140,7 +140,7 @@
   <sld_infos>
     <sld_info hpath="soc_system:u0" name="u0">
       <assignment_values>
-        <assignment_value text="QSYS_NAME soc_system HAS_SOPCINFO 1 GENERATION_ID 1609765445"/>
+        <assignment_value text="QSYS_NAME soc_system HAS_SOPCINFO 1 GENERATION_ID 1609841734"/>
       </assignment_values>
       <parameters/>
     </sld_info>

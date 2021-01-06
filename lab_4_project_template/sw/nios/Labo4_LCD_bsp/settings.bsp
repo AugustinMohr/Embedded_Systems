@@ -2,8 +2,8 @@
 <sch:Settings xmlns:sch="http://www.altera.com/embeddedsw/bsp/schema">
         <BspType>hal</BspType>
         <BspVersion>default</BspVersion>
-        <BspGeneratedTimeStamp>05-Jan-2021 18:23:27</BspGeneratedTimeStamp>
-        <BspGeneratedUnixTimeStamp>1609867407529</BspGeneratedUnixTimeStamp>
+        <BspGeneratedTimeStamp>06-Jan-2021 11:01:25</BspGeneratedTimeStamp>
+        <BspGeneratedUnixTimeStamp>1609927285226</BspGeneratedUnixTimeStamp>
         <BspGeneratedLocation>C:\Users\nicca\DeskDoc\EmbeddedSystems\Embedded_Systems\lab_4_project_template\sw\nios\Labo4_LCD_bsp</BspGeneratedLocation>
         <BspSettingsFile>settings.bsp</BspSettingsFile>
         <SopcDesignFile>C:\Users\nicca\DeskDoc\EmbeddedSystems\Embedded_Systems\lab_4_project_template\hw\quartus\soc_system.sopcinfo</SopcDesignFile>

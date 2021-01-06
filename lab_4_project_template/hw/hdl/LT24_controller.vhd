@@ -22,7 +22,6 @@ entity LT24_controller is
 		
 		-- Avalon Master
 		AM_address			: out std_logic_vector(31 downto 0);
-		AM_ByteEnable		: out std_logic_vector(3 downto 0);
 		AM_read				: out std_logic;
 		AM_readdata			: in std_logic_vector(31 downto 0);
 		AM_waitRQ			: in std_logic;
@@ -59,6 +58,8 @@ signal CntLength			: unsigned(31 downto 0);
 signal bursts_left		: unsigned(7 downto 0);
 signal newdata_interrupt: std_logic; 
 
+signal finished 			: std_logic;
+
 signal wait_LCD 			: integer;
 signal num_pixels			: integer := 0;
 
@@ -73,7 +74,7 @@ constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := "11111111"; -- TODO
 type LCD_states is (idle, write_command, write_data, write_pixel, full_frame_done);
 signal LCD_state	: LCD_states;
 
-type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data, AM_wait_interrupt, AM_wait_FIFO);
+type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data, AM_finished AM_wait_FIFO);
 signal AM_state : AM_states := AM_idle;
 
 
@@ -131,6 +132,7 @@ begin
 		buffer_length  <= (others => '0');
 		LCD_command  <= (others => '0');
 		LCD_data  <= (others => '0');		
+		AS_irq <= '0';
 	elsif rising_edge(clk) then			
 		if AS_CS = '1' and AS_write = '1' then 
 			case AS_address is
@@ -138,13 +140,18 @@ begin
 			when "0001" => buffer_length  <= unsigned(AS_writedata);
 			when "0010" => LCD_command		<= AS_writedata(7 downto 0);
 			when "0011" => LCD_data			<= AS_writedata(15 downto 0);
-			when "0100" =>
+			when "0100" => AS_irq			<= '0'; -- Set this to 0 after giving new buffer address and length
 			when "0101" =>
 			when "0110" =>
 			when "0111" =>
 			when "1000" =>
 			when others => null;
 			end case;
+			
+			-- Avalon Slave Interrupt Update
+			if finished = '1' then
+				AS_irq <= '1';
+			end if;
 		end if;
 	end if;	
 
@@ -184,7 +191,6 @@ begin
 		DataAck <= '0';
 		AM_state <= AM_idle;
 		AM_read <= '0';
-		AM_ByteEnable <= "0000";
 		CntAddress <= (others => '0');
 		CntLength <= (others => '0');
 		AM_BurstCount <= (others => '0');
@@ -208,63 +214,56 @@ begin
 			
 			if buffer_length = X"0000_0000" then -- go back to idle if buffer length = 0
 				AM_state <= AM_idle;
-			elsif FIFO_usedw >= ALMOST_FULL then 
-				AM_state <= AM_wait_FIFO;
 			else -- Loop here
 				AM_state <= AM_read_data;
 				AM_Address <= std_logic_vector(CntAddress);
 				AM_BurstCount <= std_logic_vector(BURST_COUNT);
 				AM_read <= '1';
-				AM_ByteEnable <= "0000";
 			end if;
 			
 		when AM_read_data =>	-- read on avalon bus
-		
-			if AM_waitRQ = '0' then
+			
+			AM_read <= '1';
+			
+			if FIFO_usedw >= ALMOST_FULL then 
+				AM_state <= AM_wait_FIFO;
+			elsif AM_waitRQ = '0' then
 				AM_state <= AM_acq_data;
-				AM_BurstCount <= (others => '0');
 				bursts_left <= BURST_COUNT;
-				AM_read <= '0';
-				AM_ByteEnable <= "0000";
-				DataAck <= '1';
+				AM_read <= '0'; -- interrupts bursts
 			end if;
 		
 		when AM_acq_data =>	-- wait end of request
 		
-			if AM_Rddatavalid = '1' then
+			if AM_Rddatavalid = '1' then 
 				FIFO_write <= '1';
 				FIFO_writedata <= AM_readdata;
-				DataAck <= '0';
+				
 				if CntLength /= 1 then	-- not end of buffer, increment address
-					CntAddress <= CntAddress + 4; -- is that correct?
+					CntAddress <= CntAddress + 4; 
 					bursts_left <= bursts_left - 1;
 					CntLength <= CntLength - 1;
 					if bursts_left <= "00000001" then -- end of burst
 						AM_state <= AM_wait_data; 
 					end if;
-				else 	-- end of buffer
-					if newdata_interrupt = '1' then
-						AM_state <= AM_wait_interrupt; -- wait for processor to validate new buffer
-					else -- buffer data is already valid, processor has set the interrupt to 0 manually
-						CntAddress <= buffer_address;
-						CntLength <= buffer_length;
-						AM_state <= AM_idle;
-					end if;
+				else -- end of buffer, return to idle
+					finished <= '1';
+					LCD_state <= finished_state;
 				end if;
 			end if;
 			
-		when AM_wait_interrupt => -- Wait for processor to deactivate interrupt
-			if newdata_interrupt = '0' then
-				newdata_interrupt <= '1'; -- Set to 1 so that next time it arrives at end of buffer it will interrupt
-				CntAddress <= buffer_address;
-				CntLength <= buffer_length;
-				AM_state <= AM_idle;
-			end if;	
 		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
-			AM_BurstCount <= (others => '0');
+			AM_read = '0';
 			if FIFO_usedw < ALMOST_FULL then
+				AM_state <= AM_wait_data;
+			end if;
+			
+		when finished_state => -- wait for AS_irq to be set to 1 for interruption
+			if AS_irq = '1' then
+				finished <= '0';
 				AM_state <= AM_idle;
 			end if;
+		
 		end case;
 	end if;
 		

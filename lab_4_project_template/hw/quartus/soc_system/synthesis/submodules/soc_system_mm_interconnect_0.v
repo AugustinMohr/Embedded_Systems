@@ -13,7 +13,6 @@ module soc_system_mm_interconnect_0 (
 		input  wire [31:0] LCD_controller_0_avalon_master_address,               //               LCD_controller_0_avalon_master.address
 		output wire        LCD_controller_0_avalon_master_waitrequest,           //                                             .waitrequest
 		input  wire [7:0]  LCD_controller_0_avalon_master_burstcount,            //                                             .burstcount
-		input  wire [3:0]  LCD_controller_0_avalon_master_byteenable,            //                                             .byteenable
 		input  wire        LCD_controller_0_avalon_master_read,                  //                                             .read
 		output wire [31:0] LCD_controller_0_avalon_master_readdata,              //                                             .readdata
 		output wire        LCD_controller_0_avalon_master_readdatavalid,         //                                             .readdatavalid
@@ -705,10 +704,10 @@ module soc_system_mm_interconnect_0 (
 		.av_address             (LCD_controller_0_avalon_master_address),                                            //      avalon_anti_master_0.address
 		.av_waitrequest         (LCD_controller_0_avalon_master_waitrequest),                                        //                          .waitrequest
 		.av_burstcount          (LCD_controller_0_avalon_master_burstcount),                                         //                          .burstcount
-		.av_byteenable          (LCD_controller_0_avalon_master_byteenable),                                         //                          .byteenable
 		.av_read                (LCD_controller_0_avalon_master_read),                                               //                          .read
 		.av_readdata            (LCD_controller_0_avalon_master_readdata),                                           //                          .readdata
 		.av_readdatavalid       (LCD_controller_0_avalon_master_readdatavalid),                                      //                          .readdatavalid
+		.av_byteenable          (4'b1111),                                                                           //               (terminated)
 		.av_beginbursttransfer  (1'b0),                                                                              //               (terminated)
 		.av_begintransfer       (1'b0),                                                                              //               (terminated)
 		.av_chipselect          (1'b0),                                                                              //               (terminated)

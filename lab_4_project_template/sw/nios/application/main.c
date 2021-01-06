@@ -39,7 +39,7 @@ void BUFF_LEN_WR(uint data);
 #define LCD_DATA_OFFSET         (4 * 0b0011)
 
 #define HPS_0_BRIDGES_BASE      0x40000000
-#define BUFFER_LENGTH           0x00038400 //1 228 800 bits, 19 200 addresses in 32 bits
+#define BUFFER_LENGTH           0x00023800 //1 228 800 bits, 153600 bytes, in hex 23800
 #define BUFFER1_OFFSET          0x00000000
 #define BUFFER2_OFFSET          (BUFFER1_OFFSET + BUFFER_LENGTH)
 
@@ -281,26 +281,42 @@ void BUFF_LEN_WR(uint data){
     IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, BUFFER_LENGTH_OFFSET, data);
 }
 
+void test(void) {
+    int verbose = 0;
+    printf("sending data to SDRAM... \n");
+    // write to SDRAM
+    for(int i = 0; i < BUFFER_LENGTH; i = i + 4){
+        MEM_WR(BUFFER1_OFFSET + i, 0xffffffff);
+    }
+    printf("Data successfully sent. reading \n");
+
+    if(verbose == 1){
+        unsigned char r;
+        for(int i = 0; i < BUFFER_LENGTH; i = i + 4){
+            r =  IORD_32DIRECT(HPS_0_BRIDGES_BASE, BUFFER1_OFFSET + i);
+            printf("%x \n", r);
+        }
+    }
+
+
+    // buffer address
+    BUFF_ADD_WR(BUFFER1_OFFSET);
+    waitms(1);
+    // buffer length
+    BUFF_LEN_WR(BUFFER_LENGTH);
+
+    printf("Buffer info sent. \n");
+}
+
 int main(void)
 {
 
     printf("start:\n");
     LCD_Init();
-
+    LCD_Clear(0x0000);
     IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0x0);
 
-    printf("sending data to SDRAM... \n");
-    // write to SDRAM
-    for(int i = 0; i < BUFFER_LENGTH; i ++){
-        MEM_WR(BUFFER1_OFFSET + i, 0xf800008f);
-    }
-    printf("Data successfully sent. \n Sending buffer info...");
-
-    // buffer address
-    BUFF_ADD_WR(BUFFER1_OFFSET);
-    waitms(1);
-    BUFF_LEN_WR(BUFFER_LENGTH);
-
+    test();
     while(1) {
         IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0xAA);
         waitms(1000);

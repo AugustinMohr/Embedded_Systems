@@ -91,7 +91,6 @@ architecture rtl of soc_system is
 			clk            : in  std_logic                     := 'X';             -- clk
 			nReset         : in  std_logic                     := 'X';             -- reset_n
 			AM_address     : out std_logic_vector(31 downto 0);                    -- address
-			AM_ByteEnable  : out std_logic_vector(3 downto 0);                     -- byteenable
 			AM_read        : out std_logic;                                        -- read
 			AM_readdata    : in  std_logic_vector(31 downto 0) := (others => 'X'); -- readdata
 			AM_waitRQ      : in  std_logic                     := 'X';             -- waitrequest
@@ -109,7 +108,8 @@ architecture rtl of soc_system is
 			AS_writedata   : in  std_logic_vector(31 downto 0) := (others => 'X'); -- writedata
 			AS_read        : in  std_logic                     := 'X';             -- read
 			AS_readdata    : out std_logic_vector(31 downto 0);                    -- readdata
-			AS_CS          : in  std_logic                     := 'X'              -- chipselect
+			AS_CS          : in  std_logic                     := 'X';             -- chipselect
+			AS_irq         : out std_logic                                         -- irq
 		);
 	end component LT24_controller;
 
@@ -324,7 +324,6 @@ architecture rtl of soc_system is
 			LCD_controller_0_avalon_master_address               : in  std_logic_vector(31 downto 0) := (others => 'X'); -- address
 			LCD_controller_0_avalon_master_waitrequest           : out std_logic;                                        -- waitrequest
 			LCD_controller_0_avalon_master_burstcount            : in  std_logic_vector(7 downto 0)  := (others => 'X'); -- burstcount
-			LCD_controller_0_avalon_master_byteenable            : in  std_logic_vector(3 downto 0)  := (others => 'X'); -- byteenable
 			LCD_controller_0_avalon_master_read                  : in  std_logic                     := 'X';             -- read
 			LCD_controller_0_avalon_master_readdata              : out std_logic_vector(31 downto 0);                    -- readdata
 			LCD_controller_0_avalon_master_readdatavalid         : out std_logic;                                        -- readdatavalid
@@ -418,6 +417,7 @@ architecture rtl of soc_system is
 			clk           : in  std_logic                     := 'X'; -- clk
 			reset         : in  std_logic                     := 'X'; -- reset
 			receiver0_irq : in  std_logic                     := 'X'; -- irq
+			receiver1_irq : in  std_logic                     := 'X'; -- irq
 			sender_irq    : out std_logic_vector(31 downto 0)         -- irq
 		);
 	end component soc_system_irq_mapper;
@@ -623,7 +623,6 @@ architecture rtl of soc_system is
 	signal lcd_controller_0_avalon_master_readdata                                : std_logic_vector(31 downto 0); -- mm_interconnect_0:LCD_controller_0_avalon_master_readdata -> LCD_controller_0:AM_readdata
 	signal lcd_controller_0_avalon_master_waitrequest                             : std_logic;                     -- mm_interconnect_0:LCD_controller_0_avalon_master_waitrequest -> LCD_controller_0:AM_waitRQ
 	signal lcd_controller_0_avalon_master_address                                 : std_logic_vector(31 downto 0); -- LCD_controller_0:AM_address -> mm_interconnect_0:LCD_controller_0_avalon_master_address
-	signal lcd_controller_0_avalon_master_byteenable                              : std_logic_vector(3 downto 0);  -- LCD_controller_0:AM_ByteEnable -> mm_interconnect_0:LCD_controller_0_avalon_master_byteenable
 	signal lcd_controller_0_avalon_master_read                                    : std_logic;                     -- LCD_controller_0:AM_read -> mm_interconnect_0:LCD_controller_0_avalon_master_read
 	signal lcd_controller_0_avalon_master_readdatavalid                           : std_logic;                     -- mm_interconnect_0:LCD_controller_0_avalon_master_readdatavalid -> LCD_controller_0:AM_Rddatavalid
 	signal lcd_controller_0_avalon_master_burstcount                              : std_logic_vector(7 downto 0);  -- LCD_controller_0:AM_BurstCount -> mm_interconnect_0:LCD_controller_0_avalon_master_burstcount
@@ -701,7 +700,8 @@ architecture rtl of soc_system is
 	signal mm_interconnect_1_hps_0_f2h_sdram0_data_write                          : std_logic;                     -- mm_interconnect_1:hps_0_f2h_sdram0_data_write -> hps_0:f2h_sdram0_WRITE
 	signal mm_interconnect_1_hps_0_f2h_sdram0_data_writedata                      : std_logic_vector(31 downto 0); -- mm_interconnect_1:hps_0_f2h_sdram0_data_writedata -> hps_0:f2h_sdram0_WRITEDATA
 	signal mm_interconnect_1_hps_0_f2h_sdram0_data_burstcount                     : std_logic_vector(7 downto 0);  -- mm_interconnect_1:hps_0_f2h_sdram0_data_burstcount -> hps_0:f2h_sdram0_BURSTCOUNT
-	signal irq_mapper_receiver0_irq                                               : std_logic;                     -- jtag_uart_0:av_irq -> irq_mapper:receiver0_irq
+	signal irq_mapper_receiver0_irq                                               : std_logic;                     -- LCD_controller_0:AS_irq -> irq_mapper:receiver0_irq
+	signal irq_mapper_receiver1_irq                                               : std_logic;                     -- jtag_uart_0:av_irq -> irq_mapper:receiver1_irq
 	signal nios2_gen2_0_irq_irq                                                   : std_logic_vector(31 downto 0); -- irq_mapper:sender_irq -> nios2_gen2_0:irq
 	signal rst_controller_reset_out_reset                                         : std_logic;                     -- rst_controller:reset_out -> [address_span_extender_0:reset, irq_mapper:reset, mm_interconnect_0:LCD_controller_0_reset_reset_bridge_in_reset_reset, mm_interconnect_1:address_span_extender_0_reset_reset_bridge_in_reset_reset, onchip_memory2_0:reset, rst_controller_reset_out_reset:in, rst_translator:in_reset]
 	signal rst_controller_reset_out_reset_req                                     : std_logic;                     -- rst_controller:reset_req -> [nios2_gen2_0:reset_req, onchip_memory2_0:reset_req, rst_translator:reset_req_in]
@@ -721,28 +721,28 @@ begin
 
 	lcd_controller_0 : component LT24_controller
 		port map (
-			clk            => clk_clk,                                          --         clock.clk
-			nReset         => rst_controller_reset_out_reset_ports_inv,         --         reset.reset_n
-			AM_address     => lcd_controller_0_avalon_master_address,           -- avalon_master.address
-			AM_ByteEnable  => lcd_controller_0_avalon_master_byteenable,        --              .byteenable
-			AM_read        => lcd_controller_0_avalon_master_read,              --              .read
-			AM_readdata    => lcd_controller_0_avalon_master_readdata,          --              .readdata
-			AM_waitRQ      => lcd_controller_0_avalon_master_waitrequest,       --              .waitrequest
-			AM_BurstCount  => lcd_controller_0_avalon_master_burstcount,        --              .burstcount
-			AM_Rddatavalid => lcd_controller_0_avalon_master_readdatavalid,     --              .readdatavalid
-			CS_N           => lcd_controller_0_conduit_end_export_cs_n,         --   conduit_end.export_cs_n
-			DATA           => lcd_controller_0_conduit_end_export_data,         --              .export_data
-			D_C_N          => lcd_controller_0_conduit_end_export_d_c_n,        --              .export_d_c_n
-			LCD_ON         => lcd_controller_0_conduit_end_export_lcd_on,       --              .export_lcd_on
-			RD_N           => lcd_controller_0_conduit_end_export_rd_n,         --              .export_rd_n
-			RESET_N        => lcd_controller_0_conduit_end_export_reset_n,      --              .export_reset_n
-			WR_N           => lcd_controller_0_conduit_end_export_wr_n,         --              .export_wr_n
-			AS_address     => mm_interconnect_0_lcd_controller_0_as_address,    --            as.address
-			AS_write       => mm_interconnect_0_lcd_controller_0_as_write,      --              .write
-			AS_writedata   => mm_interconnect_0_lcd_controller_0_as_writedata,  --              .writedata
-			AS_read        => mm_interconnect_0_lcd_controller_0_as_read,       --              .read
-			AS_readdata    => mm_interconnect_0_lcd_controller_0_as_readdata,   --              .readdata
-			AS_CS          => mm_interconnect_0_lcd_controller_0_as_chipselect  --              .chipselect
+			clk            => clk_clk,                                          --            clock.clk
+			nReset         => rst_controller_reset_out_reset_ports_inv,         --            reset.reset_n
+			AM_address     => lcd_controller_0_avalon_master_address,           --    avalon_master.address
+			AM_read        => lcd_controller_0_avalon_master_read,              --                 .read
+			AM_readdata    => lcd_controller_0_avalon_master_readdata,          --                 .readdata
+			AM_waitRQ      => lcd_controller_0_avalon_master_waitrequest,       --                 .waitrequest
+			AM_BurstCount  => lcd_controller_0_avalon_master_burstcount,        --                 .burstcount
+			AM_Rddatavalid => lcd_controller_0_avalon_master_readdatavalid,     --                 .readdatavalid
+			CS_N           => lcd_controller_0_conduit_end_export_cs_n,         --      conduit_end.export_cs_n
+			DATA           => lcd_controller_0_conduit_end_export_data,         --                 .export_data
+			D_C_N          => lcd_controller_0_conduit_end_export_d_c_n,        --                 .export_d_c_n
+			LCD_ON         => lcd_controller_0_conduit_end_export_lcd_on,       --                 .export_lcd_on
+			RD_N           => lcd_controller_0_conduit_end_export_rd_n,         --                 .export_rd_n
+			RESET_N        => lcd_controller_0_conduit_end_export_reset_n,      --                 .export_reset_n
+			WR_N           => lcd_controller_0_conduit_end_export_wr_n,         --                 .export_wr_n
+			AS_address     => mm_interconnect_0_lcd_controller_0_as_address,    --               as.address
+			AS_write       => mm_interconnect_0_lcd_controller_0_as_write,      --                 .write
+			AS_writedata   => mm_interconnect_0_lcd_controller_0_as_writedata,  --                 .writedata
+			AS_read        => mm_interconnect_0_lcd_controller_0_as_read,       --                 .read
+			AS_readdata    => mm_interconnect_0_lcd_controller_0_as_readdata,   --                 .readdata
+			AS_CS          => mm_interconnect_0_lcd_controller_0_as_chipselect, --                 .chipselect
+			AS_irq         => irq_mapper_receiver0_irq                          -- interrupt_sender.irq
 		);
 
 	address_span_extender_0 : component altera_address_span_extender
@@ -880,7 +880,7 @@ begin
 			av_write_n     => mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write_ports_inv, --                  .write_n
 			av_writedata   => mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_writedata,       --                  .writedata
 			av_waitrequest => mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_waitrequest,     --                  .waitrequest
-			av_irq         => irq_mapper_receiver0_irq                                         --               irq.irq
+			av_irq         => irq_mapper_receiver1_irq                                         --               irq.irq
 		);
 
 	nios2_gen2_0 : component soc_system_nios2_gen2_0
@@ -950,7 +950,6 @@ begin
 			LCD_controller_0_avalon_master_address               => lcd_controller_0_avalon_master_address,                                 --               LCD_controller_0_avalon_master.address
 			LCD_controller_0_avalon_master_waitrequest           => lcd_controller_0_avalon_master_waitrequest,                             --                                             .waitrequest
 			LCD_controller_0_avalon_master_burstcount            => lcd_controller_0_avalon_master_burstcount,                              --                                             .burstcount
-			LCD_controller_0_avalon_master_byteenable            => lcd_controller_0_avalon_master_byteenable,                              --                                             .byteenable
 			LCD_controller_0_avalon_master_read                  => lcd_controller_0_avalon_master_read,                                    --                                             .read
 			LCD_controller_0_avalon_master_readdata              => lcd_controller_0_avalon_master_readdata,                                --                                             .readdata
 			LCD_controller_0_avalon_master_readdatavalid         => lcd_controller_0_avalon_master_readdatavalid,                           --                                             .readdatavalid
@@ -1042,6 +1041,7 @@ begin
 			clk           => clk_clk,                        --       clk.clk
 			reset         => rst_controller_reset_out_reset, -- clk_reset.reset
 			receiver0_irq => irq_mapper_receiver0_irq,       -- receiver0.irq
+			receiver1_irq => irq_mapper_receiver1_irq,       -- receiver1.irq
 			sender_irq    => nios2_gen2_0_irq_irq            --    sender.irq
 		);
 

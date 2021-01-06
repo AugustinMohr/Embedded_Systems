@@ -59,22 +59,20 @@ signal bursts_left		: unsigned(7 downto 0);
 signal newdata_interrupt: std_logic; 
 
 signal finished 			: std_logic;
-
+signal irq_buffer			: std_logic;
 signal wait_LCD 			: integer;
-signal num_pixels			: integer := 0;
 
 --Constants
 
-constant MAX_PIXELS 			: integer := 76800; --320x240 pixels
-constant BURST_COUNT			: unsigned(7 downto 0) := X"28";
-constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := "11111111"; -- TODO
+constant BURST_COUNT			: unsigned(7 downto 0) := X"24"; -- 36
+constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := X"D8"; -- 216
 
 --States of FSM
 
-type LCD_states is (idle, write_command, write_data, write_pixel, full_frame_done);
+type LCD_states is (idle, write_command, write_data, write_pixel);
 signal LCD_state	: LCD_states;
 
-type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data, AM_finished AM_wait_FIFO);
+type AM_states is(AM_idle, AM_wait_data, AM_acq_data, AM_finished, AM_wait_FIFO);
 signal AM_state : AM_states := AM_idle;
 
 
@@ -132,31 +130,32 @@ begin
 		buffer_length  <= (others => '0');
 		LCD_command  <= (others => '0');
 		LCD_data  <= (others => '0');		
-		AS_irq <= '0';
+		irq_buffer <= '0';
 	elsif rising_edge(clk) then			
 		if AS_CS = '1' and AS_write = '1' then 
 			case AS_address is
-			when "0000" => buffer_address <= unsigned(AS_writedata);
-			when "0001" => buffer_length  <= unsigned(AS_writedata);
-			when "0010" => LCD_command		<= AS_writedata(7 downto 0);
-			when "0011" => LCD_data			<= AS_writedata(15 downto 0);
-			when "0100" => AS_irq			<= '0'; -- Set this to 0 after giving new buffer address and length
-			when "0101" =>
-			when "0110" =>
-			when "0111" =>
-			when "1000" =>
-			when others => null;
+				when "0000" => buffer_address <= unsigned(AS_writedata);
+				when "0001" => buffer_length  <= unsigned(AS_writedata);
+				when "0010" => LCD_command		<= AS_writedata(7 downto 0);
+				when "0011" => LCD_data			<= AS_writedata(15 downto 0);
+				when "0100" => irq_buffer		<= '0'; -- Set this to 0 after giving new buffer address and length
+				when "0101" =>
+				when "0110" =>
+				when "0111" =>
+				when "1000" =>
+				when others => null;
 			end case;
 			
 			-- Avalon Slave Interrupt Update
 			if finished = '1' then
-				AS_irq <= '1';
+				irq_buffer <= '1';
 			end if;
 		end if;
 	end if;	
 
 end process Avalon_slave_write;
 
+AS_irq <= irq_buffer; -- AS_irq is connected to irq_buffer
 
 
 -- Avalon Slave read from registers
@@ -210,32 +209,26 @@ begin
 				CntLength <= buffer_length; 
 			end if;
 			
-		when AM_wait_data =>
+		when AM_wait_data =>	-- read on avalon bus
 			
 			if buffer_length = X"0000_0000" then -- go back to idle if buffer length = 0
 				AM_state <= AM_idle;
-			else -- Loop here
-				AM_state <= AM_read_data;
+			elsif FIFO_usedw >= ALMOST_FULL then 
+				AM_state <= AM_wait_FIFO;
+			else
+				AM_read <= '1';
 				AM_Address <= std_logic_vector(CntAddress);
 				AM_BurstCount <= std_logic_vector(BURST_COUNT);
-				AM_read <= '1';
-			end if;
-			
-		when AM_read_data =>	-- read on avalon bus
-			
-			AM_read <= '1';
-			
-			if FIFO_usedw >= ALMOST_FULL then 
-				AM_state <= AM_wait_FIFO;
-			elsif AM_waitRQ = '0' then
-				AM_state <= AM_acq_data;
-				bursts_left <= BURST_COUNT;
-				AM_read <= '0'; -- interrupts bursts
+				if AM_waitRQ = '0' then
+					AM_state <= AM_acq_data;
+					bursts_left <= BURST_COUNT;
+				end if;
 			end if;
 		
 		when AM_acq_data =>	-- wait end of request
 		
 			if AM_Rddatavalid = '1' then 
+				AM_read <= '0';
 				FIFO_write <= '1';
 				FIFO_writedata <= AM_readdata;
 				
@@ -248,18 +241,18 @@ begin
 					end if;
 				else -- end of buffer, return to idle
 					finished <= '1';
-					LCD_state <= finished_state;
+					AM_state <= AM_finished;
 				end if;
 			end if;
 			
 		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
-			AM_read = '0';
+			AM_read <= '0';
 			if FIFO_usedw < ALMOST_FULL then
 				AM_state <= AM_wait_data;
 			end if;
 			
-		when finished_state => -- wait for AS_irq to be set to 1 for interruption
-			if AS_irq = '1' then
+		when AM_finished => -- wait for AS_irq to be set to 1 for interruption
+			if irq_buffer = '1' then
 				finished <= '0';
 				AM_state <= AM_idle;
 			end if;
@@ -364,19 +357,10 @@ begin
 					WR_N <= '1';				-- Write to LCD
 				when 3 =>
 					DATA <= (others => 'Z');
-					num_pixels <= num_pixels + 1;	-- Increment pixel count
 					LCD_state <= idle;
-					if num_pixels = MAX_PIXELS then
-						LCD_state <= full_frame_done;
-					else
-						LCD_state <= idle;
-					end if;
 				when others =>
 					LCD_state <= idle;
 				end case;
-					
-			when full_frame_done =>	--TODO Implement interruption for the processor to know the frame has been displayed and that the camera can get a new frame.
-					LCD_state <= idle; --Temporary : Goes back to idle
 								
 			when others =>		
 				null;

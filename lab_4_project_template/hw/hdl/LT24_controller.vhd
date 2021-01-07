@@ -48,7 +48,7 @@ architecture comp of LT24_controller is
 
 
 signal buffer_address 	: unsigned(31 downto 0);
-signal buffer_length  	: unsigned(31 downto 0);
+signal buffer_length  	: unsigned(31 downto 0); 			-- in bytes
 signal LCD_command		: std_logic_vector(7 downto 0);
 signal LCD_data			: std_logic_vector(15 downto 0);
 
@@ -56,7 +56,7 @@ signal LCD_data			: std_logic_vector(15 downto 0);
 signal cnt_address			: unsigned(31 downto 0);
 signal cnt_length			: unsigned(31 downto 0);
 signal bursts_left		: unsigned(7 downto 0);
- 
+signal burst_count		: unsigned(7 downto 0) := X"10"; -- default to 16;
 
 signal finished 			: std_logic;
 signal irq_buffer			: std_logic;
@@ -64,7 +64,6 @@ signal wait_LCD 			: integer;
 
 --Constants
 
-constant BURST_COUNT			: unsigned(7 downto 0) := X"20"; -- 32
 constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := X"E0"; -- 224
 
 --States of FSM
@@ -129,7 +128,8 @@ begin
 		buffer_address <= (others => '0');
 		buffer_length  <= (others => '0');
 		LCD_command  <= (others => '0');
-		LCD_data  <= (others => '0');		
+		LCD_data  <= (others => '0');
+		burst_count <= X"10";
 		irq_buffer <= '0';
 	elsif rising_edge(clk) then			
 		if AS_CS = '1' and AS_write = '1' then 
@@ -138,19 +138,19 @@ begin
 				when "0001" => buffer_length  <= unsigned(AS_writedata);
 				when "0010" => LCD_command		<= AS_writedata(7 downto 0);
 				when "0011" => LCD_data			<= AS_writedata(15 downto 0);
+				when "0100" => burst_count 	<= unsigned(AS_writedata(7 downto 0));
 				when others => null;
 			end case;
-			
-			-- Avalon Slave Interrupt Update
-			if finished = '1' then
-				buffer_length  <= (others => '0');
-				irq_buffer <= '1';
-			else 
-				irq_buffer <= '0';
-			end if;
 		end if;
-	end if;	
-
+		
+		-- Avalon Slave Interrupt Update
+		if finished = '1' then
+			buffer_length  <= (others => '0');
+			irq_buffer <= '1';
+		else 
+			irq_buffer <= '0';
+		end if;	
+	end if;
 end process Avalon_slave_write;
 
 AS_irq <= irq_buffer; -- AS_irq is connected to irq_buffer
@@ -168,7 +168,7 @@ begin
 				when "0001" => AS_readdata <= std_logic_vector(buffer_length);
 				when "0010" => AS_readdata(7 downto 0) <= LCD_command;
 				when "0011" => AS_readdata(15 downto 0) <= LCD_data;
-				when "0100" => 
+				when "0100" => AS_readdata(7 downto 0) <= std_logic_vector(burst_count);
 				when "0101" =>
 				when "0110" =>
 				when "0111" =>
@@ -189,7 +189,7 @@ begin
 		AM_read <= '0';
 		cnt_address <= (others => '0');
 		cnt_length <= (others => '0');
-		AM_BurstCount <= (others => '0');
+		AM_burstcount <= (others => '0');
 		bursts_left <= (others => '0');
 		finished <= '0';
 		
@@ -201,36 +201,41 @@ begin
 			when AM_idle =>										--Idle state, waiting to receive a buffer to fetch pixel from.
 				
 				if buffer_length /= X"0000_0000" then
-					cnt_length <= buffer_length/4;
+					cnt_length <= buffer_length / 4;      	--Convert from number of bytes to number of transfers necessary 
 					cnt_address <= buffer_address;
 					AM_state <= AM_read_request;
 				end if;
 				
 			when AM_read_request =>								--Requesting a burst read from the memory through the Avalon Bus.
 				
-				if FIFO_usedw <= ALMOST_FULL then	--Request the read only if there is enough room in the FIFO to receive it.
+				if FIFO_usedw <= ALMOST_FULL and AM_rddatavalid = '0'then	--Request the read only if there is enough room in the FIFO to receive it, and rdatavalid = 0.
 					AM_read <= '1';
 					AM_address <= std_logic_vector(cnt_address);
-					if cnt_length < BURST_COUNT then
+					
+					if cnt_length < burst_count then
 						AM_burstcount <= std_logic_vector(cnt_length(7 downto 0));		
 						bursts_left <= cnt_length(7 downto 0);
 					else
-						AM_burstcount <= std_logic_vector(BURST_COUNT);		
-						bursts_left <= BURST_COUNT;
+						AM_burstcount <= std_logic_vector(burst_count);		
+						bursts_left <= burst_count;
 					end if;
+					
 					if AM_waitrq = '0' then
 						AM_state <= AM_acq_data;
+						AM_read <= '0';
+						AM_address <= (others => '0');
+						AM_burstcount <= (others => '0');
 					end if;
+				else
+					AM_read <= '0';
+					
 				end if;
 				
 			when AM_acq_data =>									--Reading each valid data of the burst sent on the Avalon Bus.
-				AM_read <= '0';
-				AM_address <= (others => '0');
-				AM_burstcount <= (others => '0');
 				if AM_rddatavalid = '1' then
 					FIFO_write <= '1';
 					FIFO_writedata <= AM_readdata;
-					cnt_address <= cnt_address + 4;
+					cnt_address <= cnt_address + 1;
 					cnt_length <= cnt_length - 1;
 					bursts_left <= bursts_left - 1;
 					if cnt_length <= 1 then			--Checking End of Buffer (End of Frame) -> Finished.

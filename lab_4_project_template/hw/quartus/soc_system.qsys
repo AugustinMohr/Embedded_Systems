@@ -228,6 +228,22 @@
          type = "String";
       }
    }
+   element soc_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
+   element soc_system
+   {
+      datum _originalDeviceFamily
+      {
+         value = "Cyclone V";
+         type = "String";
+      }
+   }
 }
 ]]></parameter>
  <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
@@ -1065,24 +1081,6 @@
   <parameter name="simDrivenValue" value="0" />
   <parameter name="width" value="8" />
  </module>
- <connection
-   kind="avalon"
-   version="18.1"
-   start="LCD_controller_0.avalon_master"
-   end="LCD_controller_0.as">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0000" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="18.1"
-   start="LCD_controller_0.avalon_master"
-   end="pio_leds.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x10000810" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
  <connection
    kind="avalon"
    version="18.1"

@@ -93,9 +93,9 @@ architecture rtl of soc_system is
 			AM_address     : out std_logic_vector(31 downto 0);                    -- address
 			AM_read        : out std_logic;                                        -- read
 			AM_readdata    : in  std_logic_vector(31 downto 0) := (others => 'X'); -- readdata
-			AM_waitRQ      : in  std_logic                     := 'X';             -- waitrequest
-			AM_BurstCount  : out std_logic_vector(7 downto 0);                     -- burstcount
-			AM_Rddatavalid : in  std_logic                     := 'X';             -- readdatavalid
+			AM_burstcount  : out std_logic_vector(7 downto 0);                     -- burstcount
+			AM_rddatavalid : in  std_logic                     := 'X';             -- readdatavalid
+			AM_waitrq      : in  std_logic                     := 'X';             -- waitrequest
 			CS_N           : out std_logic;                                        -- export_cs_n
 			DATA           : out std_logic_vector(15 downto 0);                    -- export_data
 			D_C_N          : out std_logic;                                        -- export_d_c_n
@@ -621,11 +621,11 @@ architecture rtl of soc_system is
 	end component soc_system_rst_controller_002;
 
 	signal lcd_controller_0_avalon_master_readdata                                : std_logic_vector(31 downto 0); -- mm_interconnect_0:LCD_controller_0_avalon_master_readdata -> LCD_controller_0:AM_readdata
-	signal lcd_controller_0_avalon_master_waitrequest                             : std_logic;                     -- mm_interconnect_0:LCD_controller_0_avalon_master_waitrequest -> LCD_controller_0:AM_waitRQ
+	signal lcd_controller_0_avalon_master_waitrequest                             : std_logic;                     -- mm_interconnect_0:LCD_controller_0_avalon_master_waitrequest -> LCD_controller_0:AM_waitrq
 	signal lcd_controller_0_avalon_master_address                                 : std_logic_vector(31 downto 0); -- LCD_controller_0:AM_address -> mm_interconnect_0:LCD_controller_0_avalon_master_address
 	signal lcd_controller_0_avalon_master_read                                    : std_logic;                     -- LCD_controller_0:AM_read -> mm_interconnect_0:LCD_controller_0_avalon_master_read
-	signal lcd_controller_0_avalon_master_readdatavalid                           : std_logic;                     -- mm_interconnect_0:LCD_controller_0_avalon_master_readdatavalid -> LCD_controller_0:AM_Rddatavalid
-	signal lcd_controller_0_avalon_master_burstcount                              : std_logic_vector(7 downto 0);  -- LCD_controller_0:AM_BurstCount -> mm_interconnect_0:LCD_controller_0_avalon_master_burstcount
+	signal lcd_controller_0_avalon_master_readdatavalid                           : std_logic;                     -- mm_interconnect_0:LCD_controller_0_avalon_master_readdatavalid -> LCD_controller_0:AM_rddatavalid
+	signal lcd_controller_0_avalon_master_burstcount                              : std_logic_vector(7 downto 0);  -- LCD_controller_0:AM_burstcount -> mm_interconnect_0:LCD_controller_0_avalon_master_burstcount
 	signal nios2_gen2_0_data_master_readdata                                      : std_logic_vector(31 downto 0); -- mm_interconnect_0:nios2_gen2_0_data_master_readdata -> nios2_gen2_0:d_readdata
 	signal nios2_gen2_0_data_master_waitrequest                                   : std_logic;                     -- mm_interconnect_0:nios2_gen2_0_data_master_waitrequest -> nios2_gen2_0:d_waitrequest
 	signal nios2_gen2_0_data_master_debugaccess                                   : std_logic;                     -- nios2_gen2_0:debug_mem_slave_debugaccess_to_roms -> mm_interconnect_0:nios2_gen2_0_data_master_debugaccess
@@ -640,17 +640,6 @@ architecture rtl of soc_system is
 	signal nios2_gen2_0_instruction_master_address                                : std_logic_vector(30 downto 0); -- nios2_gen2_0:i_address -> mm_interconnect_0:nios2_gen2_0_instruction_master_address
 	signal nios2_gen2_0_instruction_master_read                                   : std_logic;                     -- nios2_gen2_0:i_read -> mm_interconnect_0:nios2_gen2_0_instruction_master_read
 	signal nios2_gen2_0_instruction_master_readdatavalid                          : std_logic;                     -- mm_interconnect_0:nios2_gen2_0_instruction_master_readdatavalid -> nios2_gen2_0:i_readdatavalid
-	signal mm_interconnect_0_lcd_controller_0_as_chipselect                       : std_logic;                     -- mm_interconnect_0:LCD_controller_0_as_chipselect -> LCD_controller_0:AS_CS
-	signal mm_interconnect_0_lcd_controller_0_as_readdata                         : std_logic_vector(31 downto 0); -- LCD_controller_0:AS_readdata -> mm_interconnect_0:LCD_controller_0_as_readdata
-	signal mm_interconnect_0_lcd_controller_0_as_address                          : std_logic_vector(3 downto 0);  -- mm_interconnect_0:LCD_controller_0_as_address -> LCD_controller_0:AS_address
-	signal mm_interconnect_0_lcd_controller_0_as_read                             : std_logic;                     -- mm_interconnect_0:LCD_controller_0_as_read -> LCD_controller_0:AS_read
-	signal mm_interconnect_0_lcd_controller_0_as_write                            : std_logic;                     -- mm_interconnect_0:LCD_controller_0_as_write -> LCD_controller_0:AS_write
-	signal mm_interconnect_0_lcd_controller_0_as_writedata                        : std_logic_vector(31 downto 0); -- mm_interconnect_0:LCD_controller_0_as_writedata -> LCD_controller_0:AS_writedata
-	signal mm_interconnect_0_pio_leds_s1_chipselect                               : std_logic;                     -- mm_interconnect_0:pio_leds_s1_chipselect -> pio_leds:chipselect
-	signal mm_interconnect_0_pio_leds_s1_readdata                                 : std_logic_vector(31 downto 0); -- pio_leds:readdata -> mm_interconnect_0:pio_leds_s1_readdata
-	signal mm_interconnect_0_pio_leds_s1_address                                  : std_logic_vector(1 downto 0);  -- mm_interconnect_0:pio_leds_s1_address -> pio_leds:address
-	signal mm_interconnect_0_pio_leds_s1_write                                    : std_logic;                     -- mm_interconnect_0:pio_leds_s1_write -> mm_interconnect_0_pio_leds_s1_write:in
-	signal mm_interconnect_0_pio_leds_s1_writedata                                : std_logic_vector(31 downto 0); -- mm_interconnect_0:pio_leds_s1_writedata -> pio_leds:writedata
 	signal mm_interconnect_0_address_span_extender_0_windowed_slave_readdata      : std_logic_vector(31 downto 0); -- address_span_extender_0:avs_s0_readdata -> mm_interconnect_0:address_span_extender_0_windowed_slave_readdata
 	signal mm_interconnect_0_address_span_extender_0_windowed_slave_waitrequest   : std_logic;                     -- address_span_extender_0:avs_s0_waitrequest -> mm_interconnect_0:address_span_extender_0_windowed_slave_waitrequest
 	signal mm_interconnect_0_address_span_extender_0_windowed_slave_address       : std_logic_vector(25 downto 0); -- mm_interconnect_0:address_span_extender_0_windowed_slave_address -> address_span_extender_0:avs_s0_address
@@ -660,6 +649,12 @@ architecture rtl of soc_system is
 	signal mm_interconnect_0_address_span_extender_0_windowed_slave_write         : std_logic;                     -- mm_interconnect_0:address_span_extender_0_windowed_slave_write -> address_span_extender_0:avs_s0_write
 	signal mm_interconnect_0_address_span_extender_0_windowed_slave_writedata     : std_logic_vector(31 downto 0); -- mm_interconnect_0:address_span_extender_0_windowed_slave_writedata -> address_span_extender_0:avs_s0_writedata
 	signal mm_interconnect_0_address_span_extender_0_windowed_slave_burstcount    : std_logic_vector(6 downto 0);  -- mm_interconnect_0:address_span_extender_0_windowed_slave_burstcount -> address_span_extender_0:avs_s0_burstcount
+	signal mm_interconnect_0_lcd_controller_0_as_chipselect                       : std_logic;                     -- mm_interconnect_0:LCD_controller_0_as_chipselect -> LCD_controller_0:AS_CS
+	signal mm_interconnect_0_lcd_controller_0_as_readdata                         : std_logic_vector(31 downto 0); -- LCD_controller_0:AS_readdata -> mm_interconnect_0:LCD_controller_0_as_readdata
+	signal mm_interconnect_0_lcd_controller_0_as_address                          : std_logic_vector(3 downto 0);  -- mm_interconnect_0:LCD_controller_0_as_address -> LCD_controller_0:AS_address
+	signal mm_interconnect_0_lcd_controller_0_as_read                             : std_logic;                     -- mm_interconnect_0:LCD_controller_0_as_read -> LCD_controller_0:AS_read
+	signal mm_interconnect_0_lcd_controller_0_as_write                            : std_logic;                     -- mm_interconnect_0:LCD_controller_0_as_write -> LCD_controller_0:AS_write
+	signal mm_interconnect_0_lcd_controller_0_as_writedata                        : std_logic_vector(31 downto 0); -- mm_interconnect_0:LCD_controller_0_as_writedata -> LCD_controller_0:AS_writedata
 	signal mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_chipselect             : std_logic;                     -- mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_chipselect -> jtag_uart_0:av_chipselect
 	signal mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_readdata               : std_logic_vector(31 downto 0); -- jtag_uart_0:av_readdata -> mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_readdata
 	signal mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_waitrequest            : std_logic;                     -- jtag_uart_0:av_waitrequest -> mm_interconnect_0:jtag_uart_0_avalon_jtag_slave_waitrequest
@@ -682,6 +677,11 @@ architecture rtl of soc_system is
 	signal mm_interconnect_0_onchip_memory2_0_s1_write                            : std_logic;                     -- mm_interconnect_0:onchip_memory2_0_s1_write -> onchip_memory2_0:write
 	signal mm_interconnect_0_onchip_memory2_0_s1_writedata                        : std_logic_vector(31 downto 0); -- mm_interconnect_0:onchip_memory2_0_s1_writedata -> onchip_memory2_0:writedata
 	signal mm_interconnect_0_onchip_memory2_0_s1_clken                            : std_logic;                     -- mm_interconnect_0:onchip_memory2_0_s1_clken -> onchip_memory2_0:clken
+	signal mm_interconnect_0_pio_leds_s1_chipselect                               : std_logic;                     -- mm_interconnect_0:pio_leds_s1_chipselect -> pio_leds:chipselect
+	signal mm_interconnect_0_pio_leds_s1_readdata                                 : std_logic_vector(31 downto 0); -- pio_leds:readdata -> mm_interconnect_0:pio_leds_s1_readdata
+	signal mm_interconnect_0_pio_leds_s1_address                                  : std_logic_vector(1 downto 0);  -- mm_interconnect_0:pio_leds_s1_address -> pio_leds:address
+	signal mm_interconnect_0_pio_leds_s1_write                                    : std_logic;                     -- mm_interconnect_0:pio_leds_s1_write -> mm_interconnect_0_pio_leds_s1_write:in
+	signal mm_interconnect_0_pio_leds_s1_writedata                                : std_logic_vector(31 downto 0); -- mm_interconnect_0:pio_leds_s1_writedata -> pio_leds:writedata
 	signal address_span_extender_0_expanded_master_waitrequest                    : std_logic;                     -- mm_interconnect_1:address_span_extender_0_expanded_master_waitrequest -> address_span_extender_0:avm_m0_waitrequest
 	signal address_span_extender_0_expanded_master_readdata                       : std_logic_vector(31 downto 0); -- mm_interconnect_1:address_span_extender_0_expanded_master_readdata -> address_span_extender_0:avm_m0_readdata
 	signal address_span_extender_0_expanded_master_address                        : std_logic_vector(31 downto 0); -- address_span_extender_0:avm_m0_address -> mm_interconnect_1:address_span_extender_0_expanded_master_address
@@ -710,9 +710,9 @@ architecture rtl of soc_system is
 	signal rst_controller_001_reset_out_reset                                     : std_logic;                     -- rst_controller_001:reset_out -> [mm_interconnect_0:pio_leds_reset_reset_bridge_in_reset_reset, rst_controller_001_reset_out_reset:in]
 	signal rst_controller_002_reset_out_reset                                     : std_logic;                     -- rst_controller_002:reset_out -> mm_interconnect_1:hps_0_f2h_sdram0_data_translator_reset_reset_bridge_in_reset_reset
 	signal reset_reset_n_ports_inv                                                : std_logic;                     -- reset_reset_n:inv -> [rst_controller:reset_in0, rst_controller_001:reset_in0]
-	signal mm_interconnect_0_pio_leds_s1_write_ports_inv                          : std_logic;                     -- mm_interconnect_0_pio_leds_s1_write:inv -> pio_leds:write_n
 	signal mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read_ports_inv         : std_logic;                     -- mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read:inv -> jtag_uart_0:av_read_n
 	signal mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write_ports_inv        : std_logic;                     -- mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write:inv -> jtag_uart_0:av_write_n
+	signal mm_interconnect_0_pio_leds_s1_write_ports_inv                          : std_logic;                     -- mm_interconnect_0_pio_leds_s1_write:inv -> pio_leds:write_n
 	signal rst_controller_reset_out_reset_ports_inv                               : std_logic;                     -- rst_controller_reset_out_reset:inv -> [LCD_controller_0:nReset, jtag_uart_0:rst_n, nios2_gen2_0:reset_n]
 	signal hps_0_h2f_reset_reset_ports_inv                                        : std_logic;                     -- hps_0_h2f_reset_reset:inv -> [rst_controller:reset_in2, rst_controller_001:reset_in1, rst_controller_002:reset_in0]
 	signal rst_controller_001_reset_out_reset_ports_inv                           : std_logic;                     -- rst_controller_001_reset_out_reset:inv -> pio_leds:reset_n
@@ -726,9 +726,9 @@ begin
 			AM_address     => lcd_controller_0_avalon_master_address,           --    avalon_master.address
 			AM_read        => lcd_controller_0_avalon_master_read,              --                 .read
 			AM_readdata    => lcd_controller_0_avalon_master_readdata,          --                 .readdata
-			AM_waitRQ      => lcd_controller_0_avalon_master_waitrequest,       --                 .waitrequest
-			AM_BurstCount  => lcd_controller_0_avalon_master_burstcount,        --                 .burstcount
-			AM_Rddatavalid => lcd_controller_0_avalon_master_readdatavalid,     --                 .readdatavalid
+			AM_burstcount  => lcd_controller_0_avalon_master_burstcount,        --                 .burstcount
+			AM_rddatavalid => lcd_controller_0_avalon_master_readdatavalid,     --                 .readdatavalid
+			AM_waitrq      => lcd_controller_0_avalon_master_waitrequest,       --                 .waitrequest
 			CS_N           => lcd_controller_0_conduit_end_export_cs_n,         --      conduit_end.export_cs_n
 			DATA           => lcd_controller_0_conduit_end_export_data,         --                 .export_data
 			D_C_N          => lcd_controller_0_conduit_end_export_d_c_n,        --                 .export_d_c_n
@@ -1242,11 +1242,11 @@ begin
 
 	reset_reset_n_ports_inv <= not reset_reset_n;
 
-	mm_interconnect_0_pio_leds_s1_write_ports_inv <= not mm_interconnect_0_pio_leds_s1_write;
-
 	mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read_ports_inv <= not mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read;
 
 	mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write_ports_inv <= not mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write;
+
+	mm_interconnect_0_pio_leds_s1_write_ports_inv <= not mm_interconnect_0_pio_leds_s1_write;
 
 	rst_controller_reset_out_reset_ports_inv <= not rst_controller_reset_out_reset;
 

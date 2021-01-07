@@ -24,9 +24,9 @@ entity LT24_controller is
 		AM_address			: out std_logic_vector(31 downto 0);
 		AM_read				: out std_logic;
 		AM_readdata			: in std_logic_vector(31 downto 0);
-		AM_waitRQ			: in std_logic;
-		AM_Rddatavalid		: in std_logic;
-		AM_BurstCount		: out std_logic_vector(7 downto 0);
+		AM_waitrq			: in std_logic;
+		AM_rddatavalid		: in std_logic;
+		AM_burstcount		: out std_logic_vector(7 downto 0);
 		
 		-- Lcd Output
 		LCD_ON				: out std_logic;
@@ -52,11 +52,11 @@ signal buffer_length  	: unsigned(31 downto 0);
 signal LCD_command		: std_logic_vector(7 downto 0);
 signal LCD_data			: std_logic_vector(15 downto 0);
 
-signal DataAck				: std_logic;	-- TODO: is this useful?
-signal CntAddress			: unsigned(31 downto 0);
-signal CntLength			: unsigned(31 downto 0);
+
+signal cnt_address			: unsigned(31 downto 0);
+signal cnt_length			: unsigned(31 downto 0);
 signal bursts_left		: unsigned(7 downto 0);
-signal newdata_interrupt: std_logic; 
+ 
 
 signal finished 			: std_logic;
 signal irq_buffer			: std_logic;
@@ -64,15 +64,15 @@ signal wait_LCD 			: integer;
 
 --Constants
 
-constant BURST_COUNT			: unsigned(7 downto 0) := X"28";
-constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := "11111111"; -- TODO
+constant BURST_COUNT			: unsigned(7 downto 0) := X"20"; -- 32
+constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := X"E0"; -- 224
 
 --States of FSM
 
 type LCD_states is (idle, write_command, write_data, write_pixel);
 signal LCD_state	: LCD_states;
 
-type AM_states is(AM_idle, AM_wait_data, AM_read_data, AM_acq_data, AM_finished, AM_wait_FIFO);
+type AM_states is(AM_idle, AM_read_request, AM_acq_data, AM_finished);
 signal AM_state : AM_states := AM_idle;
 
 
@@ -138,17 +138,15 @@ begin
 				when "0001" => buffer_length  <= unsigned(AS_writedata);
 				when "0010" => LCD_command		<= AS_writedata(7 downto 0);
 				when "0011" => LCD_data			<= AS_writedata(15 downto 0);
-				when "0100" => irq_buffer		<= '0'; -- Set this to 0 after giving new buffer address and length
-				when "0101" =>
-				when "0110" =>
-				when "0111" =>
-				when "1000" =>
 				when others => null;
 			end case;
 			
 			-- Avalon Slave Interrupt Update
 			if finished = '1' then
+				buffer_length  <= (others => '0');
 				irq_buffer <= '1';
+			else 
+				irq_buffer <= '0';
 			end if;
 		end if;
 	end if;	
@@ -168,8 +166,8 @@ begin
 			case AS_address is
 				when "0000" => AS_readdata <= std_logic_vector(buffer_address);
 				when "0001" => AS_readdata <= std_logic_vector(buffer_length);
-				when "0010" => AS_readdata(7 downto 0) <= std_logic_vector(LCD_command);
-				when "0011" => AS_readdata(15 downto 0) <= std_logic_vector(LCD_data);
+				when "0010" => AS_readdata(7 downto 0) <= LCD_command;
+				when "0011" => AS_readdata(15 downto 0) <= LCD_data;
 				when "0100" => 
 				when "0101" =>
 				when "0110" =>
@@ -187,81 +185,65 @@ end process Avalon_slave_read;
 Avalon_master : process(clk, nReset)
 begin
 	if nReset = '0' then -- Reset to default values
-		DataAck <= '0';
 		AM_state <= AM_idle;
 		AM_read <= '0';
-		CntAddress <= (others => '0');
-		CntLength <= (others => '0');
+		cnt_address <= (others => '0');
+		cnt_length <= (others => '0');
 		AM_BurstCount <= (others => '0');
 		bursts_left <= (others => '0');
+		finished <= '0';
 		
 	elsif rising_edge(clk) then
 	
 		FIFO_write <= '0';
 		FIFO_writedata <= (others => '0');
 		case AM_state is
-	
-		when AM_idle =>
-		
-			if buffer_length /= X"0000_0000" then -- if length /= 0
-				AM_state <= AM_wait_data;
-				CntAddress <= buffer_address; 
-				CntLength <= buffer_length; 
-			end if;
-			
-		when AM_wait_data =>
-			
-			if buffer_length = X"0000_0000" then -- go back to idle if buffer length = 0
-				AM_state <= AM_idle;
-			else -- Loop here
-				AM_state <= AM_read_data;
-				AM_Address <= std_logic_vector(CntAddress);
-				AM_BurstCount <= std_logic_vector(BURST_COUNT);
-				AM_read <= '1';
-			end if;
-			
-		when AM_read_data =>	-- read on avalon bus
-			
-			AM_read <= '1';
-			
-			if FIFO_usedw >= ALMOST_FULL then 
-				AM_state <= AM_wait_FIFO;
-			elsif AM_waitRQ = '0' then
-				AM_state <= AM_acq_data;
-				bursts_left <= BURST_COUNT;
-				AM_read <= '0'; -- interrupts bursts
-			end if;
-		
-		when AM_acq_data =>	-- wait end of request
-		
-			if AM_Rddatavalid = '1' then 
-				FIFO_write <= '1';
-				FIFO_writedata <= AM_readdata;
+			when AM_idle =>										--Idle state, waiting to receive a buffer to fetch pixel from.
 				
-				if CntLength /= 1 then	-- not end of buffer, increment address
-					CntAddress <= CntAddress + 4; 
-					bursts_left <= bursts_left - 1;
-					CntLength <= CntLength - 1;
-					if bursts_left <= "00000001" then -- end of burst
-						AM_state <= AM_wait_data; 
-					end if;
-				else -- end of buffer, return to idle
-					finished <= '1';
-					AM_state <= AM_finished;
+				if buffer_length /= X"0000_0000" then
+					cnt_length <= buffer_length/4;
+					cnt_address <= buffer_address;
+					AM_state <= AM_read_request;
 				end if;
-			end if;
-			
-		when AM_wait_FIFO => -- Wait for the FIFO to have enough space to be written in
-			AM_read <= '0';
-			if FIFO_usedw < ALMOST_FULL then
-				AM_state <= AM_wait_data;
-			end if;
-			
-		when AM_finished => -- wait for AS_irq to be set to 1 for interruption
-			if irq_buffer = '1' then
+				
+			when AM_read_request =>								--Requesting a burst read from the memory through the Avalon Bus.
+				
+				--if FIFO_usedw <= ALMOST_FULL then	--Request the read only if there is enough room in the FIFO to receive it.
+				AM_read <= '1';
+				AM_address <= std_logic_vector(cnt_address);
+				if cnt_length < BURST_COUNT then
+					AM_burstcount <= std_logic_vector(cnt_length(7 downto 0));		
+					bursts_left <= cnt_length(7 downto 0);
+				else
+					AM_burstcount <= std_logic_vector(BURST_COUNT);		
+					bursts_left <= BURST_COUNT;
+				end if;
+				if AM_waitrq = '0' then
+					AM_state <= AM_acq_data;
+				end if;
+				--end if;
+				
+			when AM_acq_data =>									--Reading each valid data of the burst sent on the Avalon Bus.
+				AM_read <= '0';
+				AM_address <= (others => '0');
+				AM_burstcount <= (others => '0');
+				if AM_rddatavalid = '1' then
+					FIFO_write <= '1';
+					FIFO_writedata <= AM_readdata;
+					cnt_address <= cnt_address + 4;
+					cnt_length <= cnt_length - 1;
+					bursts_left <= bursts_left - 1;
+					if cnt_length <= 1 then			--Checking End of Buffer (End of Frame) -> Finished.
+						AM_state <= AM_finished;
+						finished <= '1';
+					elsif bursts_left <= 1 then	--Checking End of Burst -> Request another burst read.
+						AM_state <= AM_read_request;		 	
+					end if;
+				end if;
+				
+			when AM_finished =>									--Turning back off the finished flag and going back to idle.
 				finished <= '0';
 				AM_state <= AM_idle;
-			end if;
 		
 		end case;
 	end if;

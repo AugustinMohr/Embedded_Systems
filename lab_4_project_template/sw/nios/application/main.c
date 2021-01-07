@@ -30,6 +30,8 @@ void LCD_Swiss(uint size);
 void MEM_WR(uint offset, uint data);
 void BUFF_ADD_WR(uint data);
 void BUFF_LEN_WR(uint data);
+void BURST_COUNT_WR(uint data);
+void test(uint verbose);
 
 // defines
 #define LCD_CONTROLLER_0_BASE   0x00
@@ -37,9 +39,10 @@ void BUFF_LEN_WR(uint data);
 #define BUFFER_LENGTH_OFFSET    (4 * 0b0001)
 #define LCD_COMMAND_OFFSET      (4 * 0b0010)
 #define LCD_DATA_OFFSET         (4 * 0b0011)
+#define BURST_COUNT_OFFSET      (4 * 0b0100)
 
 #define HPS_0_BRIDGES_BASE      0x40000000
-#define BUFFER_LENGTH           0x00023800 //1 228 800 bits, 153600 bytes, in hex 23800
+#define BUFFER_LENGTH           0x00025800 //1 228 800 bits, 153 600 bytes
 #define BUFFER1_OFFSET          0x00000000
 #define BUFFER2_OFFSET          (BUFFER1_OFFSET + BUFFER_LENGTH)
 
@@ -194,7 +197,7 @@ void LCD_Init(void) {
 
 
     LCD_WR_REG(0x0036); // Memory access control (MADCTL B5 = 1)
-        LCD_WR_DATA(0x0028); // MY MX MV ML_BGR MH 0 0 -> 0b0010 0000
+        LCD_WR_DATA(0x0028); // MY MX MV ML_BGR MH 0 0 -> 0b0010 1000
 
 
     LCD_WR_REG(0x002A); // Column Address Set
@@ -262,7 +265,7 @@ void LCD_Swiss(uint size) {
        }
        LCD_SetCursor(160 - size * 1/2, 120 + size * 1/2 + i);
    }
-
+   LCD_SetCursor(0,0);
 }
 
 void LCD_reset(void) {
@@ -281,23 +284,38 @@ void BUFF_LEN_WR(uint data){
     IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, BUFFER_LENGTH_OFFSET, data);
 }
 
-void test(void) {
-    int verbose = 0;
-    printf("sending data to SDRAM... \n");
-    // write to SDRAM
-    for(int i = 0; i < BUFFER_LENGTH; i = i + 4){
-        MEM_WR(BUFFER1_OFFSET + i, 0xffffffff);
-    }
-    printf("Data successfully sent. reading \n");
+void BURST_COUNT_WR(uint data){
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, BURST_COUNT_OFFSET, data);
+}
 
-    if(verbose == 1){
+void test(uint verbose) {
+
+    if(verbose)
+        printf("sending data to SDRAM... \n");
+    // write to SDRAM
+    for(int i = 0; i < BUFFER_LENGTH * 4; i = i + 4){
+        MEM_WR(BUFFER1_OFFSET + i, 0x00000000);
+    }
+
+    for(int i = 0; i < BUFFER_LENGTH; i = i + 4){
+        if(i%3 == 0) {
+            MEM_WR(BUFFER1_OFFSET + i, 0x07e0f800);
+        } else if(i%3 == 1) {
+            MEM_WR(BUFFER1_OFFSET + i, 0xf800008f);
+        } else {
+            MEM_WR(BUFFER1_OFFSET + i, 0x008f07e0);
+        }
+    }
+    if(verbose)
+        printf("Data successfully sent. reading \n");
+
+    if(verbose){
         unsigned char r;
-        for(int i = 0; i < BUFFER_LENGTH; i = i + 4){
+        for(int i = 0; i < BUFFER_LENGTH ; i = i + 4){
             r =  IORD_32DIRECT(HPS_0_BRIDGES_BASE, BUFFER1_OFFSET + i);
             printf("%x \n", r);
         }
     }
-
 
     // buffer address
     BUFF_ADD_WR(BUFFER1_OFFSET);
@@ -305,17 +323,19 @@ void test(void) {
     // buffer length
     BUFF_LEN_WR(BUFFER_LENGTH);
 
-    printf("Buffer info sent. \n");
+    if(verbose)
+        printf("Buffer info sent. \n");
 }
 
 int main(void)
 {
-
     printf("start:\n");
     LCD_Init();
+    BURST_COUNT_WR(16);
     LCD_Clear(0x0000);
     IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0x0);
 
+    //LCD_Swiss(50);
     test();
     while(1) {
         IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0xAA);

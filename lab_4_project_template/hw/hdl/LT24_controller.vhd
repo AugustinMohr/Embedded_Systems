@@ -51,6 +51,7 @@ signal buffer_address 	: unsigned(31 downto 0);
 signal buffer_length  	: unsigned(31 downto 0); 			-- in bytes
 signal LCD_command		: std_logic_vector(7 downto 0);
 signal LCD_data			: std_logic_vector(15 downto 0);
+signal interrupt_enable : std_logic;
 
 
 signal cnt_address			: unsigned(31 downto 0);
@@ -61,6 +62,7 @@ signal burst_count		: unsigned(7 downto 0) := X"10"; -- default to 16;
 signal finished 			: std_logic;
 signal irq_buffer			: std_logic;
 signal wait_LCD 			: integer;
+signal LCD_on				: std_logic;
 
 --Constants
 
@@ -131,29 +133,39 @@ begin
 		LCD_data  <= (others => '0');
 		burst_count <= X"10";
 		irq_buffer <= '0';
-	elsif rising_edge(clk) then			
-		if AS_CS = '1' and AS_write = '1' then 
-			case AS_address is
-				when "0000" => buffer_address <= unsigned(AS_writedata);
-				when "0001" => buffer_length  <= unsigned(AS_writedata);
-				when "0010" => LCD_command		<= AS_writedata(7 downto 0);
-				when "0011" => LCD_data			<= AS_writedata(15 downto 0);
-				when "0100" => burst_count 	<= unsigned(AS_writedata(7 downto 0));
-				when others => null;
-			end case;
+		interrupt_enable <= 0;
+		LCD_on <= 0;
+	else
+		if rising_edge(clk) then			
+			if AS_CS = '1' and AS_write = '1' then 
+				case AS_address is
+					when "0000" => buffer_address <= unsigned(AS_writedata);
+					when "0001" => buffer_length  <= unsigned(AS_writedata);
+					when "0010" => LCD_command		<= AS_writedata(7 downto 0);
+					when "0011" => LCD_data			<= AS_writedata(15 downto 0);
+					when "0100" => burst_count 	<= unsigned(AS_writedata(7 downto 0));
+					when "0101" => null; --Read only
+					when "0110" => interrupt_enable <= AS_writedata(0);
+					when "0111" => LCD_on <= AS_writedata(0);
+					when others => null;
+				end case;
+			end if;
 		end if;
 		
-		-- Avalon Slave Interrupt Update
-		if finished = '1'	then
-			buffer_length  <= (others => '0');
-			irq_buffer <= '1';
-		else 
-			irq_buffer <= '0';
-		end if;	
+		
+   --Interrupt on finshed state
+		if rising_edge(finished) then
+			buffer_length <= (others => '0');
+			if interrupt_enable = 1 then
+				AS_irq <= '1';
+			end if;
+		elsif rising_edge(clk) then
+			AS_irq <= '0';
+		end if;
 	end if;
 end process Avalon_slave_write;
 
-AS_irq <= irq_buffer; -- AS_irq is connected to irq_buffer
+
 
 
 -- Avalon Slave read from registers
@@ -170,8 +182,8 @@ begin
 				when "0011" => AS_readdata(15 downto 0) <= LCD_data;
 				when "0100" => AS_readdata(7 downto 0) <= std_logic_vector(burst_count);
 				when "0101" => AS_readdata(0) <= finished;
-				when "0110" =>
-				when "0111" =>
+				when "0110" => AS_readdata(0) <= interrupt_enable;
+				when "0111" => AS_readdata(0) <= LCD_on;
 				when "1000" =>
 				when others => null;
 			end case;
@@ -249,7 +261,7 @@ begin
 				
 			when AM_finished =>									--Going back to idle.
 				AM_state <= AM_idle;
-				finished <= '0';
+				
 		
 		end case;
 	end if;
@@ -280,16 +292,15 @@ begin
 				wait_LCD <= 0;	
 				DATA <= (others => 'Z');
 			
-			if AS_CS = '1' and AS_write = '1' and AS_address = "0010" then --If a command has been sent to the AS by the processor
+				if AS_CS = '1' and AS_write = '1' and AS_address = "0010" then --If a command has been sent to the AS by the processor
 
-				LCD_state <= write_command;
-			elsif AS_CS = '1' and AS_write
-			= '1' and AS_address = "0011" then
-				LCD_state <= write_data;
-			elsif FIFO_empty = '0' then
-				LCD_state <= write_pixel;  --If there is no command and there are pixels to display
+					LCD_state <= write_command;
+				elsif AS_CS = '1' and AS_write = '1' and AS_address = "0011" then --If a data has been sent to the AS by the processor
+					LCD_state <= write_data;
+				elsif FIFO_empty = '0' then
+					LCD_state <= write_pixel;  --If there is no command and there are pixels to display
 				
-			end if;
+				end if;
 			
 			when write_command =>
 				wait_LCD <= wait_LCD + 1;
@@ -357,7 +368,7 @@ begin
 				end case;
 								
 			when others =>		
-				null;
+				LCD_state <= idle;
 		
 		end case;
 	end if;
@@ -365,7 +376,7 @@ begin
 
 end process LCD_controller;
 
-LCD_ON <= '1';  --Keep the LCD on
+LCD_ON <= LCD_on;
 	
 end comp;	
 					

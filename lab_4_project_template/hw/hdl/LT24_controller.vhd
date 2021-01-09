@@ -60,6 +60,7 @@ signal bursts_left		: unsigned(7 downto 0);
 signal burst_count		: unsigned(7 downto 0) := X"10"; -- default to 16;
 
 signal finished 			: std_logic;
+signal finished_flag 	: std_logic;
 signal irq_buffer			: std_logic;
 signal wait_LCD 			: integer;
 signal LCDon				: std_logic;
@@ -135,31 +136,30 @@ begin
 		irq_buffer <= '0';
 		interrupt_enable <= '0';
 		LCDon <= '0';
-	else
-		if rising_edge(clk) then			
-			if AS_CS = '1' and AS_write = '1' then 
-				case AS_address is
-					when "0000" => buffer_address <= unsigned(AS_writedata);
-					when "0001" => buffer_length  <= unsigned(AS_writedata);
-					when "0010" => LCD_command		<= AS_writedata(7 downto 0);
-					when "0011" => LCD_data			<= AS_writedata(15 downto 0);
-					when "0100" => burst_count 	<= unsigned(AS_writedata(7 downto 0));
-					when "0101" => null; --Read only
-					when "0110" => interrupt_enable <= AS_writedata(0);
-					when "0111" => LCDon <= AS_writedata(0);
-					when others => null;
-				end case;
-			end if;
+	elsif rising_edge(clk) then			
+		if AS_CS = '1' and AS_write = '1' then 
+			case AS_address is
+				when "0000" => buffer_address <= unsigned(AS_writedata);
+				when "0001" => buffer_length  <= unsigned(AS_writedata);
+				when "0010" => LCD_command		<= AS_writedata(7 downto 0);
+				when "0011" => LCD_data			<= AS_writedata(15 downto 0);
+				when "0100" => burst_count 	<= unsigned(AS_writedata(7 downto 0));
+				when "0101" => null; --Read only
+				when "0110" => interrupt_enable <= AS_writedata(0);
+				when "0111" => LCDon <= AS_writedata(0);
+				when others => null;
+			end case;
 		end if;
 		
 		
+		
    --Interrupt on finshed state
-		if rising_edge(finished) then
+		if finished_flag = '1' then
 			buffer_length <= (others => '0');
 			if interrupt_enable = '1' then
 				AS_irq <= '1';
 			end if;
-		elsif rising_edge(clk) then
+		else
 			AS_irq <= '0';
 		end if;
 	end if;
@@ -254,12 +254,14 @@ begin
 					if cnt_length <= 1 then			--Checking End of Buffer (End of Frame) -> Finished.
 						AM_state <= AM_finished;
 						finished <= '1';
+						finished_flag <= '1';
 					elsif bursts_left <= 1 then	--Checking End of Burst -> Request another burst read.
 						AM_state <= AM_read_request;		 	
 					end if;
 				end if;
 				
-			when AM_finished =>									--Going back to idle.
+			when AM_finished =>								--Going back to idle.
+				finished_flag <= '0';
 				AM_state <= AM_idle;
 				
 		

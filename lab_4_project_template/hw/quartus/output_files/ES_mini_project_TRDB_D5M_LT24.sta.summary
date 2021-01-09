@@ -6,17 +6,17 @@ Type  : Slow 1100mV 85C Model Setup 'soc_system:u0|soc_system_hps_0:hps_0|soc_sy
 Slack : 1.730
 TNS   : 0.000
 
-Type  : Slow 1100mV 85C Model Setup 'FPGA_CLK1_50'
-Slack : 7.698
+Type  : Slow 1100mV 85C Model Setup 'altera_reserved_tck'
+Slack : 7.026
 TNS   : 0.000
 
-Type  : Slow 1100mV 85C Model Setup 'altera_reserved_tck'
-Slack : 9.985
+Type  : Slow 1100mV 85C Model Setup 'FPGA_CLK1_50'
+Slack : 7.591
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Hold 'FPGA_CLK1_50'
-Slack : -0.418
-TNS   : -0.655
+Slack : -0.390
+TNS   : -0.637
 
 Type  : Slow 1100mV 85C Model Hold 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
 Slack : 0.143
@@ -31,11 +31,11 @@ Slack : 3.463
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'FPGA_CLK1_50'
-Slack : 14.258
+Slack : 13.047
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Recovery 'altera_reserved_tck'
-Slack : 14.941
+Slack : 15.039
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Removal 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
@@ -43,11 +43,11 @@ Slack : 0.286
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Removal 'altera_reserved_tck'
-Slack : 0.864
+Slack : 0.829
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Removal 'FPGA_CLK1_50'
-Slack : 0.895
+Slack : 0.975
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|pll_write_clk_dq_write_clk'
@@ -59,35 +59,35 @@ Slack : 0.623
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'FPGA_CLK1_50'
-Slack : 8.855
+Slack : 8.850
 TNS   : 0.000
 
 Type  : Slow 1100mV 85C Model Minimum Pulse Width 'altera_reserved_tck'
-Slack : 15.301
+Slack : 15.306
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Setup 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
 Slack : 1.727
 TNS   : 0.000
 
-Type  : Slow 1100mV 0C Model Setup 'FPGA_CLK1_50'
-Slack : 7.756
+Type  : Slow 1100mV 0C Model Setup 'altera_reserved_tck'
+Slack : 7.337
 TNS   : 0.000
 
-Type  : Slow 1100mV 0C Model Setup 'altera_reserved_tck'
-Slack : 10.087
+Type  : Slow 1100mV 0C Model Setup 'FPGA_CLK1_50'
+Slack : 7.661
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'FPGA_CLK1_50'
-Slack : -0.389
-TNS   : -0.590
+Slack : -0.367
+TNS   : -0.576
 
 Type  : Slow 1100mV 0C Model Hold 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
 Slack : 0.162
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Hold 'altera_reserved_tck'
-Slack : 0.374
+Slack : 0.373
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
@@ -95,11 +95,11 @@ Slack : 3.554
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'FPGA_CLK1_50'
-Slack : 14.526
+Slack : 13.300
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Recovery 'altera_reserved_tck'
-Slack : 15.005
+Slack : 15.154
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Removal 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
@@ -107,11 +107,11 @@ Slack : 0.280
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Removal 'altera_reserved_tck'
-Slack : 0.806
+Slack : 0.778
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Removal 'FPGA_CLK1_50'
-Slack : 0.834
+Slack : 0.919
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|pll_write_clk_dq_write_clk'
@@ -123,11 +123,11 @@ Slack : 0.630
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'FPGA_CLK1_50'
-Slack : 8.906
+Slack : 8.894
 TNS   : 0.000
 
 Type  : Slow 1100mV 0C Model Minimum Pulse Width 'altera_reserved_tck'
-Slack : 15.348
+Slack : 15.350
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Setup 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
@@ -135,35 +135,35 @@ Slack : 2.110
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Setup 'FPGA_CLK1_50'
-Slack : 7.983
+Slack : 7.882
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Setup 'altera_reserved_tck'
-Slack : 13.008
+Slack : 10.901
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Hold 'FPGA_CLK1_50'
-Slack : -0.195
-TNS   : -0.270
+Slack : -0.185
+TNS   : -0.267
 
 Type  : Fast 1100mV 85C Model Hold 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
 Slack : 0.084
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Hold 'altera_reserved_tck'
-Slack : 0.175
+Slack : 0.176
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Recovery 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
 Slack : 3.774
 TNS   : 0.000
 
-Type  : Fast 1100mV 85C Model Recovery 'altera_reserved_tck'
-Slack : 16.120
+Type  : Fast 1100mV 85C Model Recovery 'FPGA_CLK1_50'
+Slack : 15.214
 TNS   : 0.000
 
-Type  : Fast 1100mV 85C Model Recovery 'FPGA_CLK1_50'
-Slack : 16.136
+Type  : Fast 1100mV 85C Model Recovery 'altera_reserved_tck'
+Slack : 16.096
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Removal 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
@@ -171,11 +171,11 @@ Slack : 0.397
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Removal 'altera_reserved_tck'
-Slack : 0.482
+Slack : 0.455
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Removal 'FPGA_CLK1_50'
-Slack : 0.515
+Slack : 0.551
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Minimum Pulse Width 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|pll_write_clk_dq_write_clk'
@@ -187,11 +187,11 @@ Slack : 0.891
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Minimum Pulse Width 'FPGA_CLK1_50'
-Slack : 8.452
+Slack : 8.455
 TNS   : 0.000
 
 Type  : Fast 1100mV 85C Model Minimum Pulse Width 'altera_reserved_tck'
-Slack : 14.894
+Slack : 14.897
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
@@ -199,35 +199,35 @@ Slack : 2.110
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'FPGA_CLK1_50'
-Slack : 8.051
+Slack : 7.966
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Setup 'altera_reserved_tck'
-Slack : 13.462
+Slack : 11.674
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'FPGA_CLK1_50'
-Slack : -0.182
-TNS   : -0.250
+Slack : -0.173
+TNS   : -0.248
 
 Type  : Fast 1100mV 0C Model Hold 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
 Slack : 0.077
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Hold 'altera_reserved_tck'
-Slack : 0.167
+Slack : 0.168
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Recovery 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
 Slack : 3.872
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Recovery 'altera_reserved_tck'
-Slack : 16.265
+Type  : Fast 1100mV 0C Model Recovery 'FPGA_CLK1_50'
+Slack : 15.818
 TNS   : 0.000
 
-Type  : Fast 1100mV 0C Model Recovery 'FPGA_CLK1_50'
-Slack : 16.625
+Type  : Fast 1100mV 0C Model Recovery 'altera_reserved_tck'
+Slack : 16.291
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Removal 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|afi_clk_write_clk'
@@ -235,11 +235,11 @@ Slack : 0.373
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Removal 'altera_reserved_tck'
-Slack : 0.438
+Slack : 0.408
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Removal 'FPGA_CLK1_50'
-Slack : 0.464
+Slack : 0.505
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'soc_system:u0|soc_system_hps_0:hps_0|soc_system_hps_0_hps_io:hps_io|soc_system_hps_0_hps_io_border:border|hps_sdram:hps_sdram_inst|hps_sdram_pll:pll|pll_write_clk_dq_write_clk'
@@ -255,7 +255,7 @@ Slack : 8.411
 TNS   : 0.000
 
 Type  : Fast 1100mV 0C Model Minimum Pulse Width 'altera_reserved_tck'
-Slack : 14.889
+Slack : 14.891
 TNS   : 0.000
 
 ------------------------------------------------------------

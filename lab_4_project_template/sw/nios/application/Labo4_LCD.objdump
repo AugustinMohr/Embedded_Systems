@@ -2288,41 +2288,41 @@ void upload_image(void) {
     for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
 10100e48:	e03ff015 	stw	zero,-64(fp)
 10100e4c:	00003706 	br	10100f2c <upload_image+0x20c>
-        r1=((fgetc(file) >> 3) & 0x1f) << 11;
+        r1 = ((fgetc(file) >> 3) & 0x1f) << 11;
 10100e50:	e13ff217 	ldw	r4,-56(fp)
 10100e54:	01014100 	call	10101410 <fgetc>
 10100e58:	1005d0fa 	srai	r2,r2,3
 10100e5c:	100492fa 	slli	r2,r2,11
 10100e60:	10bfffcc 	andi	r2,r2,65535
 10100e64:	e0bff315 	stw	r2,-52(fp)
-        g1=((fgetc(file) >> 2) & 0x3f) << 5;
+        g1 = ((fgetc(file) >> 2) & 0x3f) << 5;
 10100e68:	e13ff217 	ldw	r4,-56(fp)
 10100e6c:	01014100 	call	10101410 <fgetc>
 10100e70:	1005d0ba 	srai	r2,r2,2
 10100e74:	10800fcc 	andi	r2,r2,63
 10100e78:	1004917a 	slli	r2,r2,5
 10100e7c:	e0bff415 	stw	r2,-48(fp)
-        b1=(fgetc(file) >> 3) & 0x1f;
+        b1 = (fgetc(file) >> 3) & 0x1f;
 10100e80:	e13ff217 	ldw	r4,-56(fp)
 10100e84:	01014100 	call	10101410 <fgetc>
 10100e88:	1005d0fa 	srai	r2,r2,3
 10100e8c:	108007cc 	andi	r2,r2,31
 10100e90:	e0bff515 	stw	r2,-44(fp)
-        r2=((fgetc(file) >> 3) & 0x1f) << 11;
+        r2 = ((fgetc(file) >> 3) & 0x1f) << 11;
 10100e94:	e13ff217 	ldw	r4,-56(fp)
 10100e98:	01014100 	call	10101410 <fgetc>
 10100e9c:	1005d0fa 	srai	r2,r2,3
 10100ea0:	100492fa 	slli	r2,r2,11
 10100ea4:	10bfffcc 	andi	r2,r2,65535
 10100ea8:	e0bff615 	stw	r2,-40(fp)
-        g2=((fgetc(file) >> 2) & 0x3f) << 5;
+        g2 = ((fgetc(file) >> 2) & 0x3f) << 5;
 10100eac:	e13ff217 	ldw	r4,-56(fp)
 10100eb0:	01014100 	call	10101410 <fgetc>
 10100eb4:	1005d0ba 	srai	r2,r2,2
 10100eb8:	10800fcc 	andi	r2,r2,63
 10100ebc:	1004917a 	slli	r2,r2,5
 10100ec0:	e0bff715 	stw	r2,-36(fp)
-        b2=(fgetc(file) >> 3) & 0x1f;
+        b2 = (fgetc(file) >> 3) & 0x1f;
 10100ec4:	e13ff217 	ldw	r4,-56(fp)
 10100ec8:	01014100 	call	10101410 <fgetc>
 10100ecc:	1005d0fa 	srai	r2,r2,3
@@ -2361,8 +2361,8 @@ void upload_image(void) {
 10100f30:	008000b4 	movhi	r2,2
 10100f34:	1095ffc4 	addi	r2,r2,22527
 10100f38:	10ffc50e 	bge	r2,r3,10100e50 <_gp+0xfffdd16c>
-        g2=((fgetc(file) >> 2) & 0x3f) << 5;
-        b2=(fgetc(file) >> 3) & 0x1f;
+        g2 = ((fgetc(file) >> 2) & 0x3f) << 5;
+        b2 = (fgetc(file) >> 3) & 0x1f;
         r = (int)(r1  + g1 + b1 + ((r2 + g2 + b2) << 16));
         MEM_WR(BUFFER1_OFFSET + i, r);
     }

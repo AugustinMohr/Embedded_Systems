@@ -364,16 +364,16 @@ void upload_image(void) {
     fscanf(file, "%d", &maxComp1);
     fscanf(file, "%d", &maxComp2);
     fscanf(file, "%d", &maxComp3);
-    printf("format: %2s\nsize: %d x %d \n%d\n",format, w, h, maxComp1, maxComp2, maxComp3);
+    printf("format: %2s\nsize: %d x %d \n%d %d \n",format, w, h, maxComp1, maxComp2, maxComp3);
     printf("Sending info to SDRAM...\n");
 
     for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
-        r1=((fgetc(file) >> 3) & 0x1f) << 11;
-        g1=((fgetc(file) >> 2) & 0x3f) << 5;
-        b1=(fgetc(file) >> 3) & 0x1f;
-        r2=((fgetc(file) >> 3) & 0x1f) << 11;
-        g2=((fgetc(file) >> 2) & 0x3f) << 5;
-        b2=(fgetc(file) >> 3) & 0x1f;
+        r1 = ((fgetc(file) >> 3) & 0x1f) << 11;
+        g1 = ((fgetc(file) >> 2) & 0x3f) << 5;
+        b1 = (fgetc(file) >> 3) & 0x1f;
+        r2 = ((fgetc(file) >> 3) & 0x1f) << 11;
+        g2 = ((fgetc(file) >> 2) & 0x3f) << 5;
+        b2 = (fgetc(file) >> 3) & 0x1f;
         r = (int)(r1  + g1 + b1 + ((r2 + g2 + b2) << 16));
         MEM_WR(BUFFER1_OFFSET + i, r);
     }

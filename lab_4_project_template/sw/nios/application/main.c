@@ -32,6 +32,7 @@ void BUFF_ADD_WR(uint data);
 void BUFF_LEN_WR(uint data);
 void BURST_COUNT_WR(uint data);
 void test(uint verbose);
+void upload_image(void);
 
 // defines
 #define LCD_CONTROLLER_0_BASE   0x00
@@ -298,12 +299,14 @@ void test(uint verbose) {
     }
 
     for(int i = 0; i < BUFFER_LENGTH; i = i + 4){
-        if(i%3 == 0) {
-            MEM_WR(BUFFER1_OFFSET + i, 0x07e0f800);
-        } else if(i%3 == 1) {
-            MEM_WR(BUFFER1_OFFSET + i, 0xf800008f);
+
+
+        if((i/4)%40 < 40/3) {
+            MEM_WR(BUFFER1_OFFSET + i, 0xf800f800);
+        } else if((i/4)%40 < 80/3) {
+            MEM_WR(BUFFER1_OFFSET + i, 0x07e007e0);
         } else {
-            MEM_WR(BUFFER1_OFFSET + i, 0x008f07e0);
+            MEM_WR(BUFFER1_OFFSET + i, 0x008f008f);
         }
     }
     if(verbose)
@@ -327,16 +330,72 @@ void test(uint verbose) {
         printf("Buffer info sent. \n");
 }
 
+
+void upload_image(void) {
+    char* filename = "/mnt/host/image.ppm";
+
+    FILE *file = fopen(filename, "r");
+    int r1, g1, b1, r2, g2, b2, r;
+    unsigned char *a[BUFFER_LENGTH];
+    if (!file) {
+     printf("Error: could not open \"%s\" for writing\n", filename);
+     return;
+    }
+    int i = 0;
+
+    printf("Reading file...\n");
+    //fread(a, 1, 320 * 240 * 3, file);
+    printf("%2s, %d, %d, %d",fgetc(file),fgetc(file),fgetc(file),fgetc(file));
+    printf("Sending info to SDRAM...\n");
+    for(int i = 0; i < BUFFER_LENGTH; i = i + 4) {
+
+        /*
+        r1 = a[6*i/4   ];
+        g1 = a[6*i/4 + 1];
+        b1 = a[6*i/4 + 2];
+        r2 = a[6*i/4 + 3];
+        g2 = a[6*i/4 + 4];
+        b2 = a[6*i/4 + 5];
+        */
+        r1=fgetc(file);
+        g1=fgetc(file);
+        b1=fgetc(file);
+        r2=fgetc(file);
+        g2=fgetc(file);
+        b2=fgetc(file);
+
+        r = (int)((r1 << 11) + (g1 << 5) + b1) + (((r2 << 11) + (g2 << 5) + b2) << 16);
+
+        //printf("%x\n", r);
+        MEM_WR(BUFFER1_OFFSET + i, r);
+    }
+
+    fclose(file);
+
+
+    printf("Sent image to memory after %d iterations\n", i);
+
+
+    // buffer address
+    BUFF_ADD_WR(BUFFER1_OFFSET);
+    waitms(1);
+    // buffer length
+    BUFF_LEN_WR(BUFFER_LENGTH);
+}
+
 int main(void)
 {
     printf("start:\n");
     LCD_Init();
     BURST_COUNT_WR(16);
     LCD_Clear(0x0000);
+
     IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0x0);
 
-    //LCD_Swiss(50);
-    test();
+    //test(0);
+    //waitms(3000);
+    upload_image();
+
     while(1) {
         IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0xAA);
         waitms(1000);

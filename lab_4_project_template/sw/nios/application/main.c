@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "io.h"
-//#include "system.h"
+#include "system.h"
 
 void LCD_Init(void);
 void LCD_reset(void);
@@ -34,6 +34,9 @@ void BUFF_LEN_WR(uint data);
 void BURST_COUNT_WR(uint data);
 void test(uint verbose);
 void upload_image(void);
+void LCD_ON(uint on);
+void LCD_INTERRUPT_ENABLE(uint on);
+
 
 // defines
 #define LCD_CONTROLLER_0_BASE   0x00
@@ -42,6 +45,9 @@ void upload_image(void);
 #define LCD_COMMAND_OFFSET      (4 * 0b0010)
 #define LCD_DATA_OFFSET         (4 * 0b0011)
 #define BURST_COUNT_OFFSET      (4 * 0b0100)
+#define FINISHED_OFFSET         (4 * 0b0101)
+#define INTERRUPT_ENABLE_OFFSET (4 * 0b0110)
+#define LCD_ON_OFFSET           (4 * 0b0111)
 
 #define HPS_0_BRIDGES_BASE      0x40000000
 #define BUFFER_LENGTH           0x00025800 //1 228 800 bits, 153 600 bytes
@@ -74,7 +80,20 @@ void LCD_WR_REG(uint data) {
     IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_COMMAND_OFFSET, data);
 }
 
+void LCD_ON(uint on) {
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, LCD_ON_OFFSET, on);
+}
+
+void LCD_INTERRUPT_ENABLE(uint on){
+    IOWR_32DIRECT(LCD_CONTROLLER_0_BASE, INTERRUPT_ENABLE_OFFSET, 1);
+}
+
+
 void LCD_Init(void) {
+
+
+    LCD_ON(1);// Turn the LCD on
+    LCD_INTERRUPT_ENABLE(1); // Enable interrupts
 
     // software reset
     LCD_reset();
@@ -328,48 +347,41 @@ void test(uint verbose) {
 
 
 void upload_image(void) {
-
-    char* filename = "/mnt/host/image.ppm";
-    FILE *file = fopen(filename, "r");
-    int r1, g1, b1, r2, g2, b2, r;
+    char* filename = "/mnt/host/image_54.ppm";
+    int r1, g1, b1, r2, g2, b2, r, w, h, maxComp1, maxComp2, maxComp3, i = 0;
     char format[3];
-    int w, h, maxComp;
-    int i = 0;
+
+    FILE *file = fopen(filename, "r");
     if (!file) {
      printf("Error: could not open \"%s\" for reading\n", filename);
      return;
     }
-
     printf("Reading file...\n");
+
     fscanf(file, "%2s", &format);
     fscanf(file, "%d", &w);
     fscanf(file, "%d", &h);
-    fscanf(file, "%d", &maxComp);
-    printf("format: %2s\nsize: %d x %d \n%d\n",format, w, h, maxComp);
+    fscanf(file, "%d", &maxComp1);
+    fscanf(file, "%d", &maxComp2);
+    fscanf(file, "%d", &maxComp3);
+    printf("format: %2s\nsize: %d x %d \n%d\n",format, w, h, maxComp1, maxComp2, maxComp3);
     printf("Sending info to SDRAM...\n");
-    for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
 
-        b1=(fgetc(file) >> 3) & 0x1f;
+    for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
         r1=((fgetc(file) >> 3) & 0x1f) << 11;
         g1=((fgetc(file) >> 2) & 0x3f) << 5;
-        b2=(fgetc(file) >> 3) & 0x1f;
+        b1=(fgetc(file) >> 3) & 0x1f;
         r2=((fgetc(file) >> 3) & 0x1f) << 11;
         g2=((fgetc(file) >> 2) & 0x3f) << 5;
+        b2=(fgetc(file) >> 3) & 0x1f;
         r = (int)(r1  + g1 + b1 + ((r2 + g2 + b2) << 16));
         MEM_WR(BUFFER1_OFFSET + i, r);
     }
-
     fclose(file);
-
-
     printf("Sent image to memory after %d iterations\n", i);
 
-
-    // buffer address
-    BUFF_ADD_WR(BUFFER1_OFFSET);
-    waitms(1);
-    // buffer length
-    BUFF_LEN_WR(BUFFER_LENGTH);
+    BUFF_ADD_WR(BUFFER1_OFFSET); // buffer address
+    BUFF_LEN_WR(BUFFER_LENGTH); // buffer length
 }
 
 int main(void)

@@ -369,17 +369,17 @@ begin
 				wait_LCD <= wait_LCD + 1;
 				case wait_LCD is
 				
-				when 1 => 
+				when 0 => 
 					FIFO_read <= '1'; --Request read from the FIFO
-				when 2 =>
+				when 1 =>
 					CS_N <= '0';
 					WR_N <= '0';
 					D_C_N <= '1';
 					DATA <= FIFO_readdata; --Read from FIFO
 					FIFO_read <= '0';
-				when 3 =>
+				when 2 =>
 					WR_N <= '1';				-- Write to LCD
-				when 4 =>
+				when 3 =>
 					DATA <= (others => 'Z');
 					num_pixels <= num_pixels + 1;	-- Increment pixel count
 					LCD_state <= idle;

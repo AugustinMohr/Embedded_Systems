@@ -144,7 +144,7 @@ begin
 		end if;
 		
 		-- Avalon Slave Interrupt Update
-		if finished = '1' then
+		if finished = '1'	then
 			buffer_length  <= (others => '0');
 			irq_buffer <= '1';
 		else 
@@ -169,7 +169,7 @@ begin
 				when "0010" => AS_readdata(7 downto 0) <= LCD_command;
 				when "0011" => AS_readdata(15 downto 0) <= LCD_data;
 				when "0100" => AS_readdata(7 downto 0) <= std_logic_vector(burst_count);
-				when "0101" =>
+				when "0101" => AS_readdata(0) <= finished;
 				when "0110" =>
 				when "0111" =>
 				when "1000" =>
@@ -203,6 +203,7 @@ begin
 				if buffer_length /= X"0000_0000" then
 					cnt_length <= buffer_length / 4;      	--Convert from number of bytes to number of transfers necessary 
 					cnt_address <= buffer_address;
+					finished <= '0';
 					AM_state <= AM_read_request;
 				end if;
 				
@@ -233,7 +234,7 @@ begin
 				
 			when AM_acq_data =>									--Reading each valid data of the burst sent on the Avalon Bus.
 				if AM_rddatavalid = '1' then
-					FIFO_write <= '1';
+					FIFO_write <= '1';	
 					FIFO_writedata <= AM_readdata;
 					cnt_address <= cnt_address + 1;
 					cnt_length <= cnt_length - 1;
@@ -246,9 +247,9 @@ begin
 					end if;
 				end if;
 				
-			when AM_finished =>									--Turning back off the finished flag and going back to idle.
-				finished <= '0';
+			when AM_finished =>									--Going back to idle.
 				AM_state <= AM_idle;
+				finished <= '0';
 		
 		end case;
 	end if;

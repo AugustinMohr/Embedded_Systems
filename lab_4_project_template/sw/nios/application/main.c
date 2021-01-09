@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "io.h"
 //#include "system.h"
 
@@ -32,7 +33,7 @@ void BUFF_ADD_WR(uint data);
 void BUFF_LEN_WR(uint data);
 void BURST_COUNT_WR(uint data);
 void test(uint verbose);
-void upload_image(void);
+void upload_image(char* image);
 
 // defines
 #define LCD_CONTROLLER_0_BASE   0x00
@@ -85,38 +86,34 @@ void LCD_Init(void) {
         LCD_WR_DATA(0x0081);
         LCD_WR_DATA(0X00c0);
 
-    LCD_WR_REG(0x00ED);
+    LCD_WR_REG(0x00ED);     // Power on sequence control
         LCD_WR_DATA(0x0064);
         LCD_WR_DATA(0x0003);
         LCD_WR_DATA(0X0012);
         LCD_WR_DATA(0X0081);
 
-    LCD_WR_REG(0x00E8);
+    LCD_WR_REG(0x00E8);     // Driver timing control A
         LCD_WR_DATA(0x0085);
         LCD_WR_DATA(0x0001);
         LCD_WR_DATA(0x00798);
 
-    LCD_WR_REG(0x00CB);
+    LCD_WR_REG(0x00CB);     // Power control A
         LCD_WR_DATA(0x0039);
         LCD_WR_DATA(0x002C);
         LCD_WR_DATA(0x0000);
         LCD_WR_DATA(0x0034);
         LCD_WR_DATA(0x0002);
 
-    LCD_WR_REG(0x00F7);
+    LCD_WR_REG(0x00F7);     // Pump ratio control
         LCD_WR_DATA(0x0020);
 
-    LCD_WR_REG(0x00EA);
+    LCD_WR_REG(0x00EA);     // Driver timing control B
         LCD_WR_DATA(0x0000);
         LCD_WR_DATA(0x0000);
 
-    LCD_WR_REG(0x00B1);
+    LCD_WR_REG(0x00B1);     // Frame rate control
         LCD_WR_DATA(0x0000);
         LCD_WR_DATA(0x001b);
-
-    LCD_WR_REG(0x00B6);
-        LCD_WR_DATA(0x000A);
-        LCD_WR_DATA(0x00A2);
 
     LCD_WR_REG(0x00C0);    //Power control
         LCD_WR_DATA(0x0005);   //VRH[5:0]
@@ -130,9 +127,6 @@ void LCD_Init(void) {
 
      LCD_WR_REG(0x00C7);    //VCM control2
          LCD_WR_DATA(0X00a2);
-
-    LCD_WR_REG(0x0036);    // Memory Access Control
-        LCD_WR_DATA(0x0008);//48
 
     LCD_WR_REG(0x00F2);    // 3Gamma Function Disable
         LCD_WR_DATA(0x0000);
@@ -300,14 +294,16 @@ void test(uint verbose) {
 
     for(int i = 0; i < BUFFER_LENGTH; i = i + 4){
 
-
-        if((i/4)%40 < 40/3) {
+        for(int j = 0; j<120; j++) {
             MEM_WR(BUFFER1_OFFSET + i, 0xf800f800);
-        } else if((i/4)%40 < 80/3) {
-            MEM_WR(BUFFER1_OFFSET + i, 0x07e007e0);
-        } else {
-            MEM_WR(BUFFER1_OFFSET + i, 0x008f008f);
+            i = i + 4;
         }
+        for(int j = 0; j<120; j++) {
+            MEM_WR(BUFFER1_OFFSET + i, 0x07e007e0);
+            i = i + 4;
+        }
+            //MEM_WR(BUFFER1_OFFSET + i, 0x008f008f);
+
     }
     if(verbose)
         printf("Data successfully sent. reading \n");
@@ -331,42 +327,39 @@ void test(uint verbose) {
 }
 
 
-void upload_image(void) {
-    char* filename = "/mnt/host/image.ppm";
+void upload_image(char* image) {
+
+    char* filename = "/mnt/host/";
+    strcat(filename,image);
+    printf("%s\n",filename);
 
     FILE *file = fopen(filename, "r");
     int r1, g1, b1, r2, g2, b2, r;
-    unsigned char *a[BUFFER_LENGTH];
+    char format[3];
+    int w, h, maxComp;
+    int i = 0;
     if (!file) {
-     printf("Error: could not open \"%s\" for writing\n", filename);
+     printf("Error: could not open \"%s\" for reading\n", filename);
      return;
     }
-    int i = 0;
+
 
     printf("Reading file...\n");
-    //fread(a, 1, 320 * 240 * 3, file);
-    printf("%2s, %d, %d, %d",fgetc(file),fgetc(file),fgetc(file),fgetc(file));
+    fscanf(file, "%3s", &format);
+    fscanf(file, "%d", &w);
+    fscanf(file, "%d", &h);
+    fscanf(file, "%d", &maxComp);
+    printf("format: %2s\nsize: %d x %d \n%d\n",format, w, h, maxComp);
     printf("Sending info to SDRAM...\n");
-    for(int i = 0; i < BUFFER_LENGTH; i = i + 4) {
+    for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
 
-        /*
-        r1 = a[6*i/4   ];
-        g1 = a[6*i/4 + 1];
-        b1 = a[6*i/4 + 2];
-        r2 = a[6*i/4 + 3];
-        g2 = a[6*i/4 + 4];
-        b2 = a[6*i/4 + 5];
-        */
-        r1=fgetc(file);
-        g1=fgetc(file);
-        b1=fgetc(file);
-        r2=fgetc(file);
-        g2=fgetc(file);
-        b2=fgetc(file);
-
-        r = (int)((r1 << 11) + (g1 << 5) + b1) + (((r2 << 11) + (g2 << 5) + b2) << 16);
-
-        //printf("%x\n", r);
+        b1=(fgetc(file) >> 3) & 0x1f;
+        r1=((fgetc(file) >> 3) & 0x1f) << 11;
+        g1=((fgetc(file) >> 2) & 0x3f) << 5;
+        b2=(fgetc(file) >> 3) & 0x1f;
+        r2=((fgetc(file) >> 3) & 0x1f) << 11;
+        g2=((fgetc(file) >> 2) & 0x3f) << 5;
+        r = (int)(r1  + g1 + b1 + ((r2 + g2 + b2) << 16));
         MEM_WR(BUFFER1_OFFSET + i, r);
     }
 
@@ -392,9 +385,7 @@ int main(void)
 
     IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0x0);
 
-    //test(0);
-    //waitms(3000);
-    upload_image();
+    upload_image("ring.ppm");
 
     while(1) {
         IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0xAA);

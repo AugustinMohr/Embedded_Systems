@@ -33,7 +33,7 @@ void BUFF_ADD_WR(uint data);
 void BUFF_LEN_WR(uint data);
 void BURST_COUNT_WR(uint data);
 void test(uint verbose);
-void upload_image(char* image);
+void upload_image(void);
 
 // defines
 #define LCD_CONTROLLER_0_BASE   0x00
@@ -327,12 +327,9 @@ void test(uint verbose) {
 }
 
 
-void upload_image(char* image) {
+void upload_image(void) {
 
-    char* filename = "/mnt/host/";
-    strcat(filename,image);
-    printf("%s\n",filename);
-
+    char* filename = "/mnt/host/image.ppm";
     FILE *file = fopen(filename, "r");
     int r1, g1, b1, r2, g2, b2, r;
     char format[3];
@@ -343,9 +340,8 @@ void upload_image(char* image) {
      return;
     }
 
-
     printf("Reading file...\n");
-    fscanf(file, "%3s", &format);
+    fscanf(file, "%2s", &format);
     fscanf(file, "%d", &w);
     fscanf(file, "%d", &h);
     fscanf(file, "%d", &maxComp);
@@ -385,7 +381,7 @@ int main(void)
 
     IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0x0);
 
-    upload_image("ring.ppm");
+    upload_image();
 
     while(1) {
         IOWR_8DIRECT(PIO_LEDS_BASE, 1, 0xAA);

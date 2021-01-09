@@ -62,7 +62,7 @@ signal burst_count		: unsigned(7 downto 0) := X"10"; -- default to 16;
 signal finished 			: std_logic;
 signal irq_buffer			: std_logic;
 signal wait_LCD 			: integer;
-signal LCD_on				: std_logic;
+signal LCDon				: std_logic;
 
 --Constants
 
@@ -133,8 +133,8 @@ begin
 		LCD_data  <= (others => '0');
 		burst_count <= X"10";
 		irq_buffer <= '0';
-		interrupt_enable <= 0;
-		LCD_on <= 0;
+		interrupt_enable <= '0';
+		LCDon <= '0';
 	else
 		if rising_edge(clk) then			
 			if AS_CS = '1' and AS_write = '1' then 
@@ -146,7 +146,7 @@ begin
 					when "0100" => burst_count 	<= unsigned(AS_writedata(7 downto 0));
 					when "0101" => null; --Read only
 					when "0110" => interrupt_enable <= AS_writedata(0);
-					when "0111" => LCD_on <= AS_writedata(0);
+					when "0111" => LCDon <= AS_writedata(0);
 					when others => null;
 				end case;
 			end if;
@@ -156,7 +156,7 @@ begin
    --Interrupt on finshed state
 		if rising_edge(finished) then
 			buffer_length <= (others => '0');
-			if interrupt_enable = 1 then
+			if interrupt_enable = '1' then
 				AS_irq <= '1';
 			end if;
 		elsif rising_edge(clk) then
@@ -183,7 +183,7 @@ begin
 				when "0100" => AS_readdata(7 downto 0) <= std_logic_vector(burst_count);
 				when "0101" => AS_readdata(0) <= finished;
 				when "0110" => AS_readdata(0) <= interrupt_enable;
-				when "0111" => AS_readdata(0) <= LCD_on;
+				when "0111" => AS_readdata(0) <= LCDon;
 				when "1000" =>
 				when others => null;
 			end case;
@@ -376,7 +376,7 @@ begin
 
 end process LCD_controller;
 
-LCD_ON <= LCD_on;
+LCD_ON <= LCDon;
 	
 end comp;	
 					

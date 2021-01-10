@@ -96,10 +96,29 @@ void camera_settings(camera_dev * cam, uint8_t burst_size, uint16_t width, uint1
 
 void camera_address(camera_dev * cam, uint32_t address) {
 	IOWR_32DIRECT(cam->base, CAMERA_ADDRESS_BASE, address);
-	uint32_t lol = IORD_32DIRECT(cam->base, CAMERA_ADDRESS_BASE);
 }
 
 bool camera_is_finished(camera_dev * cam) {
 	uint32_t ctrl = IORD_32DIRECT(cam->base, CAMERA_CONTROL_BASE);
 	return ctrl & (1 << CAMERA_CONTROL_IF);
+}
+
+void camera_save_ppm(camera_dev * cam, uint32_t addr) {
+	FILE * f = fopen("/mnt/host/image.ppm", "w");
+
+	fprintf(f, "P3\n320 240\n255 255 255\n");
+
+	for(uint16_t i = 0; i < 240; i += 1) {
+		for(uint16_t j = 0; j < 320; j+= 1) {
+			uint16_t color = IORD_16DIRECT(addr+sizeof(uint16_t)*(j+320*i), 0);
+			uint8_t red =   (color & 0b1111100000000000)>>8;
+			uint8_t green = (color & 0b0000011111100000)>>3;
+			uint8_t blue =  (color & 0b0000000000011111)<<3;
+			//printf("%x color: %x | %d %d %d \n", HPS_0_BRIDGES_BASE+sizeof(uint16_t)*(j+320*i), color, red, green, blue);
+			fprintf(f, "%d %d %d \n", red, green, blue);
+		}
+		printf("line %d\n", i);
+	}
+
+	fclose(f);
 }

@@ -38,5 +38,6 @@ void camera_capture(camera_dev * cam, uint16_t exposure);
 void camera_settings(camera_dev * cam, uint8_t burst_size, uint16_t width, uint16_t height);
 void camera_address(camera_dev * cam, uint32_t address);
 bool camera_is_finished(camera_dev * cam);
+void camera_save_ppm(camera_dev * cam, uint32_t addr);
 
 #endif

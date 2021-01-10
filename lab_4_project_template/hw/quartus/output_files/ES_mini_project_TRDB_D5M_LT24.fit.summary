@@ -1,12 +1,12 @@
-Fitter Status : Successful - Sat Jan 09 19:17:51 2021
+Fitter Status : Successful - Sun Jan 10 11:38:20 2021
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : ES_mini_project_TRDB_D5M_LT24
 Top-level Entity Name : DE0_Nano_SoC_TRDB_D5M_LT24_top_level
 Family : Cyclone V
 Device : 5CSEMA4U23C6
 Timing Models : Final
-Logic utilization (in ALMs) : 3,480 / 15,880 ( 22 % )
-Total registers : 7946
+Logic utilization (in ALMs) : 3,469 / 15,880 ( 22 % )
+Total registers : 7924
 Total pins : 178 / 314 ( 57 % )
 Total virtual pins : 0
 Total block memory bits : 1,669,632 / 2,764,800 ( 60 % )

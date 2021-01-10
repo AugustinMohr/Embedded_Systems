@@ -132,7 +132,7 @@ APP_LIBRARY_DIRS :=
 APP_LIBRARY_NAMES :=
 
 # Pre- and post- processor settings.
-BUILD_PRE_PROCESS :=
+BUILD_PRE_PROCESS := touch $(ELF).srec
 BUILD_POST_PROCESS :=
 
 QUARTUS_PROJECT_DIR := C:/Users/Iacopo/Documents/EPFL/ES/Embedded_Systems/mini_projet/hw/quartus/

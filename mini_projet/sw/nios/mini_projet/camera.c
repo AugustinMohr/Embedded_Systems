@@ -86,19 +86,19 @@ bool camera_blue_gain(camera_dev * cam, uint8_t analog, uint8_t multiplier, uint
 
 void camera_capture(camera_dev * cam, uint16_t exposure) {
 	uint32_t control = (exposure << CAMERA_CONTROL_EXP) | (1 << CAMERA_CONTROL_START) | (1 << CAMERA_CONTROL_TRIGGER);
-	IOWR_32DIRECT(&cam->base, 0, control);
+	IOWR_32DIRECT(cam->base, 0, control);
 }
 
 void camera_settings(camera_dev * cam, uint8_t burst_size, uint16_t width, uint16_t height) {
 	uint32_t settings = (burst_size << CAMERA_SETTINGS_BURST) | (height << CAMERA_SETTINGS_HEIGHT) | (width << CAMERA_SETTINGS_WIDTH);
-	IOWR_32DIRECT(&cam->base, CAMERA_SETTINGS_BASE, settings);
+	IOWR_32DIRECT(cam->base, CAMERA_SETTINGS_BASE, settings);
 }
 
 void camera_address(camera_dev * cam, uint32_t address) {
-	IOWR_32DIRECT(&cam->base, CAMERA_ADDRESS_BASE, address);
+	IOWR_32DIRECT(cam->base, CAMERA_ADDRESS_BASE, address);
 }
 
 bool camera_is_finished(camera_dev * cam) {
-	uint32_t ctrl = IORD_32DIRECT(&cam->base, CAMERA_CONTROL_BASE);
+	uint32_t ctrl = IORD_32DIRECT(cam->base, CAMERA_CONTROL_BASE);
 	return ctrl & (1 << CAMERA_CONTROL_IF);
 }

@@ -367,15 +367,36 @@ void upload_image(void) {
     printf("format: %2s\nsize: %d x %d \n%d %d \n",format, w, h, maxComp1, maxComp2, maxComp3);
     printf("Sending info to SDRAM...\n");
 
-    for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
-        r1 = ((fgetc(file) >> 3) & 0x1f) << 11;
-        g1 = ((fgetc(file) >> 2) & 0x3f) << 5;
-        b1 = (fgetc(file) >> 3) & 0x1f;
-        r2 = ((fgetc(file) >> 3) & 0x1f) << 11;
-        g2 = ((fgetc(file) >> 2) & 0x3f) << 5;
-        b2 = (fgetc(file) >> 3) & 0x1f;
-        r = (int)(r1  + g1 + b1 + ((r2 + g2 + b2) << 16));
-        MEM_WR(BUFFER1_OFFSET + i, r);
+    if(strcmp(format, "P6")) {
+        for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
+            r1 = ((fgetc(file) >> 3) & 0x1f) << 11;
+            g1 = ((fgetc(file) >> 2) & 0x3f) << 5;
+            b1 = (fgetc(file) >> 3) & 0x1f;
+            r2 = ((fgetc(file) >> 3) & 0x1f) << 11;
+            g2 = ((fgetc(file) >> 2) & 0x3f) << 5;
+            b2 = (fgetc(file) >> 3) & 0x1f;
+            r = (int)(r1  + g1 + b1 + ((r2 + g2 + b2) << 16));
+            MEM_WR(BUFFER1_OFFSET + i, r);
+        }
+    } else if(strcmp(format, "P3")) {
+        for(i = 0; i < BUFFER_LENGTH; i = i + 4) {
+
+            fscanf(file, "%d", &r1);
+            fscanf(file, "%d", &g1);
+            fscanf(file, "%d", &b1);
+            fscanf(file, "%d", &r2);
+            fscanf(file, "%d", &g2);
+            fscanf(file, "%d", &b2);
+
+            r1 = ((r1 >> 3) & 0x1f) << 11;
+            g1 = ((g1 >> 2) & 0x3f) << 5;
+            b1 = (b1 >> 3) & 0x1f;
+
+            r2 = ((r2 >> 3) & 0x1f) << 11;
+            g2 = ((g2 >> 2) & 0x3f) << 5;
+            b2 = (b2 >> 3) & 0x1f;
+            r = (int)(r1  + g1 + b1 + ((r2 + g2 + b2) << 16));
+            MEM_WR(BUFFER1_OFFSET + i, r);
     }
     fclose(file);
     printf("Sent image to memory after %d iterations\n", i);

@@ -96,6 +96,7 @@ void camera_settings(camera_dev * cam, uint8_t burst_size, uint16_t width, uint1
 
 void camera_address(camera_dev * cam, uint32_t address) {
 	IOWR_32DIRECT(cam->base, CAMERA_ADDRESS_BASE, address);
+	uint32_t lol = IORD_32DIRECT(cam->base, CAMERA_ADDRESS_BASE);
 }
 
 bool camera_is_finished(camera_dev * cam) {

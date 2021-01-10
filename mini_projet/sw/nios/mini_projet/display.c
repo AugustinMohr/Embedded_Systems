@@ -330,3 +330,6 @@ uint8_t display_is_finished(void) {
 	uint32_t finished = IORD_32DIRECT(LCD_CONTROLLER_0_BASE, FINISHED_OFFSET);
 	return finished & 0x1;
 }
+
+
+

@@ -59,7 +59,7 @@ signal cnt_length			: unsigned(31 downto 0);
 signal bursts_left		: unsigned(7 downto 0);
 signal burst_count		: unsigned(7 downto 0) := X"10"; -- default to 16;
 
-signal finished 			: std_logic;
+signal finished 			: std_logic := '1';
 signal finished_flag 	: std_logic;
 signal irq_buffer			: std_logic;
 signal wait_LCD 			: integer;
@@ -67,7 +67,7 @@ signal LCDon				: std_logic;
 
 --Constants
 
-constant ALMOST_FULL 		: std_logic_vector(7 downto 0) := X"E0"; -- 224
+constant FIFO_size 		: unsigned(7 downto 0) := X"ff"; -- 256
 
 --States of FSM
 
@@ -88,7 +88,7 @@ signal FIFO_readdata			: std_logic_vector(15 downto 0);
 signal FIFO_write_flag 		: std_logic;
 signal FIFO_empty				: std_logic;
 signal FIFO_full 				: std_logic;
-signal FIFO_usedw				: STD_LOGIC_VECTOR (7 DOWNTO 0);
+signal FIFO_usedw				: STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 
 component FIFO
@@ -203,7 +203,7 @@ begin
 		cnt_length <= (others => '0');
 		AM_burstcount <= (others => '0');
 		bursts_left <= (others => '0');
-		finished <= '0';
+		finished <= '1';
 		
 	elsif rising_edge(clk) then
 	
@@ -221,7 +221,7 @@ begin
 				
 			when AM_read_request =>								--Requesting a burst read from the memory through the Avalon Bus.
 				
-				if FIFO_usedw <= ALMOST_FULL and AM_rddatavalid = '0'then	--Request the read only if there is enough room in the FIFO to receive it, and rdatavalid = 0.
+				if unsigned(FIFO_usedw) <= FIFO_size - burst_count and AM_rddatavalid = '0'then	--Request the read only if there is enough room in the FIFO to receive it, and rdatavalid = 0.
 					AM_read <= '1';
 					AM_address <= std_logic_vector(cnt_address);
 					

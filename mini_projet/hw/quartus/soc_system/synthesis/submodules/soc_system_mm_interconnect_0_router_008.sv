@@ -49,14 +49,14 @@ module soc_system_mm_interconnect_0_router_008_default_decode
                DEFAULT_RD_CHANNEL = -1,
                DEFAULT_DESTID = 2 
    )
-  (output [74 - 72 : 0] default_destination_id,
+  (output [76 - 74 : 0] default_destination_id,
    output [8-1 : 0] default_wr_channel,
    output [8-1 : 0] default_rd_channel,
    output [8-1 : 0] default_src_channel
   );
 
   assign default_destination_id = 
-    DEFAULT_DESTID[74 - 72 : 0];
+    DEFAULT_DESTID[76 - 74 : 0];
 
   generate
     if (DEFAULT_CHANNEL == -1) begin : no_default_channel_assignment
@@ -93,7 +93,7 @@ module soc_system_mm_interconnect_0_router_008
     // Command Sink (Input)
     // -------------------
     input                       sink_valid,
-    input  [88-1 : 0]    sink_data,
+    input  [90-1 : 0]    sink_data,
     input                       sink_startofpacket,
     input                       sink_endofpacket,
     output                      sink_ready,
@@ -102,7 +102,7 @@ module soc_system_mm_interconnect_0_router_008
     // Command Source (Output)
     // -------------------
     output                          src_valid,
-    output reg [88-1    : 0] src_data,
+    output reg [90-1    : 0] src_data,
     output reg [8-1 : 0] src_channel,
     output                          src_startofpacket,
     output                          src_endofpacket,
@@ -112,18 +112,18 @@ module soc_system_mm_interconnect_0_router_008
     // -------------------------------------------------------
     // Local parameters and variables
     // -------------------------------------------------------
-    localparam PKT_ADDR_H = 40;
+    localparam PKT_ADDR_H = 42;
     localparam PKT_ADDR_L = 9;
-    localparam PKT_DEST_ID_H = 74;
-    localparam PKT_DEST_ID_L = 72;
-    localparam PKT_PROTECTION_H = 78;
-    localparam PKT_PROTECTION_L = 76;
-    localparam ST_DATA_W = 88;
+    localparam PKT_DEST_ID_H = 76;
+    localparam PKT_DEST_ID_L = 74;
+    localparam PKT_PROTECTION_H = 80;
+    localparam PKT_PROTECTION_L = 78;
+    localparam ST_DATA_W = 90;
     localparam ST_CHANNEL_W = 8;
     localparam DECODER_TYPE = 1;
 
-    localparam PKT_TRANS_WRITE = 43;
-    localparam PKT_TRANS_READ  = 44;
+    localparam PKT_TRANS_WRITE = 45;
+    localparam PKT_TRANS_READ  = 46;
 
     localparam PKT_ADDR_W = PKT_ADDR_H-PKT_ADDR_L + 1;
     localparam PKT_DEST_ID_W = PKT_DEST_ID_H-PKT_DEST_ID_L + 1;

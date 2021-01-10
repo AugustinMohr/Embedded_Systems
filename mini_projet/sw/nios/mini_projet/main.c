@@ -31,11 +31,13 @@
 
 #define BURST_LEN 16
 
-#define BUFFER_LEN (sizeof(uint16_t)*FRAME_SIZE)
+#define BUFFER_LEN (2*FRAME_SIZE)
 
 #define FB0 HPS_0_BRIDGES_BASE
 
-#define FB1 HPS_0_BRIDGES_BASE+BUFFER_LEN
+#define FB1 HPS_0_BRIDGES_BASE+10*BUFFER_LEN
+
+//#define DOUBLE_BUFFERING
 
 
 int main()
@@ -43,7 +45,7 @@ int main()
 	printf("start\n");
 	//framebuffer initialisation
 	uint32_t fb[] = {FB0, FB1};
-	uint16_t exposure = 0x0fff;
+	uint16_t exposure = 0x00ff;
 	uint8_t ord = 0;
 
 	//camera initialisaion
@@ -52,6 +54,9 @@ int main()
 	camera_initial_setup(&camera);
 	camera_settings(&camera, BURST_LEN, WIDTH*2, HEIGHT*2);
 	camera_address(&camera, fb[ord]);
+	camera_red_gain(&camera, 8, 1, 0);
+	camera_green_gain(&camera, 8, 1, 0);
+	camera_blue_gain(&camera, 8, 1, 0);
 
 	//display initialisation
 	LCD_Init();
@@ -65,27 +70,39 @@ int main()
 
 	while(1) {
 		//swap buffers
+
+#ifdef DOUBLE_BUFFERING
 		ord = !ord;
+		printf("swapping_buffers\n");
 
 		display_buffer_addr(fb[!ord]);
 		display_buffer_len(BUFFER_LEN); //launch display
+
 
 		camera_address(&camera, fb[ord]);
 		camera_capture(&camera, exposure);
 
 
+		while(!camera_is_finished(&camera));
+		while(!display_is_finished());
+
+
+
+#else
+
+		camera_address(&camera, 0);
+		camera_capture(&camera, exposure);
+		while(!camera_is_finished(&camera));
+
+
+		display_buffer_addr(0);
+		display_buffer_len(BUFFER_LEN); //launch display
 
 		while(!display_is_finished());
-		while(!camera_is_finished(&camera));
+
+		waitms(33);
+#endif
 	}
-
-
-
-
-
-
-
-
 
 	return 0;
 }

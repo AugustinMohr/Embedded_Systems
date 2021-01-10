@@ -3,7 +3,7 @@
 # This script creates the hello_world application in this directory.
 
 
-BSP_DIR=C:/Users/Iacopo/Documents/EPFL/ES/Embedded_Systems/mini_projet/sw/mini_projet_bsp/
+BSP_DIR=C:/Users/Iacopo/Documents/EPFL/ES/Embedded_Systems/mini_projet/sw/nios/mini_projet_bsp/
 QUARTUS_PROJECT_DIR=C:/Users/Iacopo/Documents/EPFL/ES/Embedded_Systems/mini_projet/hw/quartus/
 NIOS2_APP_GEN_ARGS="--elf-name mini_projet.elf --set OBJDUMP_INCLUDE_SOURCE 1 --src-files hello_world.c"
 

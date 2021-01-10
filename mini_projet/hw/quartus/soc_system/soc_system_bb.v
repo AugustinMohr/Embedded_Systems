@@ -1,6 +1,18 @@
 
 module soc_system (
+	camera_conduit_fval,
+	camera_conduit_lval,
+	camera_conduit_pixclk,
+	camera_conduit_pixdata,
+	camera_conduit_trigger_n,
 	clk_clk,
+	display_conduit_chipselect_n,
+	display_conduit_data,
+	display_conduit_dc_n,
+	display_conduit_lcd_on,
+	display_conduit_rd_n,
+	display_conduit_reset_n,
+	display_conduit_wr_n,
 	hps_0_ddr_mem_a,
 	hps_0_ddr_mem_ba,
 	hps_0_ddr_mem_ck,
@@ -68,21 +80,21 @@ module soc_system (
 	i2c_conduit_scl,
 	i2c_conduit_sda,
 	leds_conduit_export,
-	reset_reset_n,
-	display_conduit_chipselect_n,
-	display_conduit_data,
-	display_conduit_dc_n,
-	display_conduit_lcd_on,
-	display_conduit_rd_n,
-	display_conduit_reset_n,
-	display_conduit_wr_n,
-	camera_conduit_fval,
-	camera_conduit_lval,
-	camera_conduit_pixclk,
-	camera_conduit_pixdata,
-	camera_conduit_trigger_n);	
+	reset_reset_n);	
 
+	input		camera_conduit_fval;
+	input		camera_conduit_lval;
+	input		camera_conduit_pixclk;
+	input	[11:0]	camera_conduit_pixdata;
+	output		camera_conduit_trigger_n;
 	input		clk_clk;
+	output		display_conduit_chipselect_n;
+	output	[15:0]	display_conduit_data;
+	output		display_conduit_dc_n;
+	output		display_conduit_lcd_on;
+	output		display_conduit_rd_n;
+	output		display_conduit_reset_n;
+	output		display_conduit_wr_n;
 	output	[14:0]	hps_0_ddr_mem_a;
 	output	[2:0]	hps_0_ddr_mem_ba;
 	output		hps_0_ddr_mem_ck;
@@ -151,16 +163,4 @@ module soc_system (
 	inout		i2c_conduit_sda;
 	output	[7:0]	leds_conduit_export;
 	input		reset_reset_n;
-	output		display_conduit_chipselect_n;
-	output	[15:0]	display_conduit_data;
-	output		display_conduit_dc_n;
-	output		display_conduit_lcd_on;
-	output		display_conduit_rd_n;
-	output		display_conduit_reset_n;
-	output		display_conduit_wr_n;
-	input		camera_conduit_fval;
-	input		camera_conduit_lval;
-	input		camera_conduit_pixclk;
-	input	[11:0]	camera_conduit_pixdata;
-	output		camera_conduit_trigger_n;
 endmodule

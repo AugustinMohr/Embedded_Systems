@@ -1,3 +1,9 @@
+
+#include "display.h"
+
+
+
+
 void waitms(int t) {
     while(t--) {
         for(int i = 0; i < 3125; i++) {
@@ -27,7 +33,7 @@ void LCD_Init(void) {
 
 
     LCD_ON(1);// Turn the LCD on
-    LCD_INTERRUPT_ENABLE(1); // Enable interrupts
+    LCD_INTERRUPT_ENABLE(0); // Enable interrupts
 
     // software reset
     LCD_reset();
@@ -316,4 +322,11 @@ void upload_image(void) {
 
     BUFF_ADD_WR(BUFFER1_OFFSET); // buffer address
     BUFF_LEN_WR(BUFFER_LENGTH); // buffer length
+}
+
+
+
+uint8_t display_is_finished(void) {
+	uint32_t finished = IORD_32DIRECT(LCD_CONTROLLER_0_BASE, FINISHED_OFFSET);
+	return finished & 0x1;
 }

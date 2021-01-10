@@ -1,5 +1,17 @@
 	soc_system u0 (
+		.camera_conduit_fval               (<connected-to-camera_conduit_fval>),               //  camera_conduit.fval
+		.camera_conduit_lval               (<connected-to-camera_conduit_lval>),               //                .lval
+		.camera_conduit_pixclk             (<connected-to-camera_conduit_pixclk>),             //                .pixclk
+		.camera_conduit_pixdata            (<connected-to-camera_conduit_pixdata>),            //                .pixdata
+		.camera_conduit_trigger_n          (<connected-to-camera_conduit_trigger_n>),          //                .trigger_n
 		.clk_clk                           (<connected-to-clk_clk>),                           //             clk.clk
+		.display_conduit_chipselect_n      (<connected-to-display_conduit_chipselect_n>),      // display_conduit.chipselect_n
+		.display_conduit_data              (<connected-to-display_conduit_data>),              //                .data
+		.display_conduit_dc_n              (<connected-to-display_conduit_dc_n>),              //                .dc_n
+		.display_conduit_lcd_on            (<connected-to-display_conduit_lcd_on>),            //                .lcd_on
+		.display_conduit_rd_n              (<connected-to-display_conduit_rd_n>),              //                .rd_n
+		.display_conduit_reset_n           (<connected-to-display_conduit_reset_n>),           //                .reset_n
+		.display_conduit_wr_n              (<connected-to-display_conduit_wr_n>),              //                .wr_n
 		.hps_0_ddr_mem_a                   (<connected-to-hps_0_ddr_mem_a>),                   //       hps_0_ddr.mem_a
 		.hps_0_ddr_mem_ba                  (<connected-to-hps_0_ddr_mem_ba>),                  //                .mem_ba
 		.hps_0_ddr_mem_ck                  (<connected-to-hps_0_ddr_mem_ck>),                  //                .mem_ck
@@ -67,18 +79,6 @@
 		.i2c_conduit_scl                   (<connected-to-i2c_conduit_scl>),                   //     i2c_conduit.scl
 		.i2c_conduit_sda                   (<connected-to-i2c_conduit_sda>),                   //                .sda
 		.leds_conduit_export               (<connected-to-leds_conduit_export>),               //    leds_conduit.export
-		.reset_reset_n                     (<connected-to-reset_reset_n>),                     //           reset.reset_n
-		.display_conduit_chipselect_n      (<connected-to-display_conduit_chipselect_n>),      // display_conduit.chipselect_n
-		.display_conduit_data              (<connected-to-display_conduit_data>),              //                .data
-		.display_conduit_dc_n              (<connected-to-display_conduit_dc_n>),              //                .dc_n
-		.display_conduit_lcd_on            (<connected-to-display_conduit_lcd_on>),            //                .lcd_on
-		.display_conduit_rd_n              (<connected-to-display_conduit_rd_n>),              //                .rd_n
-		.display_conduit_reset_n           (<connected-to-display_conduit_reset_n>),           //                .reset_n
-		.display_conduit_wr_n              (<connected-to-display_conduit_wr_n>),              //                .wr_n
-		.camera_conduit_fval               (<connected-to-camera_conduit_fval>),               //  camera_conduit.fval
-		.camera_conduit_lval               (<connected-to-camera_conduit_lval>),               //                .lval
-		.camera_conduit_pixclk             (<connected-to-camera_conduit_pixclk>),             //                .pixclk
-		.camera_conduit_pixdata            (<connected-to-camera_conduit_pixdata>),            //                .pixdata
-		.camera_conduit_trigger_n          (<connected-to-camera_conduit_trigger_n>)           //                .trigger_n
+		.reset_reset_n                     (<connected-to-reset_reset_n>)                      //           reset.reset_n
 	);
 

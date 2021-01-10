@@ -47,6 +47,7 @@ void test(uint verbose);
 void upload_image(void);
 void LCD_ON(uint on);
 void LCD_INTERRUPT_ENABLE(uint on);
+uint8_t display_is_finished(void);
 
 
 //wrappers for clarity

@@ -18,9 +18,16 @@
 
 #include "camera.h"
 #include "display.h"
+#include "io.h"
+#include "system.h"
 
 
 #define FRAME_SIZE  (76800)
+
+#define WIDTH	320
+#define HEIGHT	240
+
+#define BURST_LEN 16
 
 #define BUFFER_LEN (sizeof(uint16_t)*FRAME_SIZE)
 
@@ -31,6 +38,7 @@
 
 int main()
 {
+	printf("start\n");
 	//framebuffer initialisation
 	uint32_t fb[] = {FB0, FB1};
 	uint16_t exposure = 0x0fff;
@@ -39,15 +47,14 @@ int main()
 	//camera initialisaion
 	camera_dev camera;
 	camera_create(&camera, I2C_0_BASE, CAMERA_0_BASE);
-	camera_init(&camera);
-	camera_settings(&camera, 640, 480, 16);
+	camera_initial_setup(&camera);
+	camera_settings(&camera, BURST_LEN, WIDTH*2, HEIGHT*2);
 	camera_address(&camera, fb[ord]);
 
 	//display initialisation
 	LCD_Init();
-	BURST_COUNT_WR(16);
+	BURST_COUNT_WR(BURST_LEN);
 	LCD_Clear(0x0000);
-	display_buffer_len(BUFFER_LEN);
 
 	//first picture
 	camera_capture(&camera, exposure);
@@ -59,12 +66,14 @@ int main()
 		ord = !ord;
 
 		display_buffer_addr(fb[!ord]);
+		display_buffer_len(BUFFER_LEN); //launch display
+
 		camera_address(&camera, fb[ord]);
-
 		camera_capture(&camera, exposure);
-		//trigger display
 
-		//while(!display_is_finished()); //wait for display to finish
+
+
+		while(!display_is_finished());
 		while(!camera_is_finished(&camera));
 	}
 

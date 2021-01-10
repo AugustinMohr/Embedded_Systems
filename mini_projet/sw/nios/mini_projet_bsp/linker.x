@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'soc_system'
  * SOPC Builder design path: C:/Users/Iacopo/Documents/EPFL/ES/Embedded_Systems/mini_projet/hw/quartus/soc_system.sopcinfo
  *
- * Generated: Sat Jan 09 21:29:11 CET 2021
+ * Generated: Sun Jan 10 09:51:53 CET 2021
  */
 
 /*

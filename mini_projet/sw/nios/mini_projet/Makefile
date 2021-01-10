@@ -86,10 +86,10 @@ ACDS_VERSION := 20.1
 ELF := mini_projet.elf
 
 # Paths to C, C++, and assembly source files.
-C_SRCS += main.c
 C_SRCS += camera.c
-C_SRCS += i2c/i2c.c
 C_SRCS += display.c
+C_SRCS += i2c/i2c.c
+C_SRCS += main.c
 CXX_SRCS :=
 ASM_SRCS :=
 
@@ -124,7 +124,7 @@ CRT0 :=
 SYS_LIB :=
 
 # Define path to the root of the BSP.
-BSP_ROOT_DIR := C:/Users/Iacopo/Documents/EPFL/ES/Embedded_Systems/mini_projet/sw/mini_projet_bsp/
+BSP_ROOT_DIR := C:/Users/Iacopo/Documents/EPFL/ES/Embedded_Systems/mini_projet/sw/nios/mini_projet_bsp/
 
 # List of application specific include directories, library directories and library names
 APP_INCLUDE_DIRS :=
@@ -326,7 +326,7 @@ ifneq ($(CRT0),)
 APP_LDFLAGS += -msys-crt0='$(call adjust-path-mixed,$(CRT0))'
 endif
 ifneq ($(SYS_LIB),)
-APP_LDFLAGS += -msys-lib=$(call adjust-path-mixed,$(SYS_LIB))
+APP_LDFLAGS += -msys-lib=hal_bsp   #-msys-lib=$(call adjust-path-mixed,$(SYS_LIB))
 endif
 
 endif # !AVOID_NIOS2_GCC3_OPTIONS

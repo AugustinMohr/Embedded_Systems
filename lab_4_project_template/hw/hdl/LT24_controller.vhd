@@ -59,7 +59,7 @@ signal cnt_length			: unsigned(31 downto 0);
 signal bursts_left		: unsigned(7 downto 0);
 signal burst_count		: unsigned(7 downto 0) := X"10"; -- default to 16;
 
-signal finished 			: std_logic;
+signal finished 			: std_logic := '1';
 signal finished_flag 	: std_logic;
 signal irq_buffer			: std_logic;
 signal wait_LCD 			: integer;
@@ -203,7 +203,7 @@ begin
 		cnt_length <= (others => '0');
 		AM_burstcount <= (others => '0');
 		bursts_left <= (others => '0');
-		finished <= '0';
+		finished <= '1';
 		
 	elsif rising_edge(clk) then
 	

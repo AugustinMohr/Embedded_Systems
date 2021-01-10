@@ -65,9 +65,12 @@ int main()
 
 	//first picture
 	camera_capture(&camera, exposure);
+
 	while(!camera_is_finished(&camera));
 
 	while(1) {
+		//swap buffers
+
 #ifdef DOUBLE_BUFFERING
 		ord = !ord;
 		printf("swapping_buffers\n");
@@ -75,22 +78,31 @@ int main()
 		display_buffer_addr(fb[!ord]);
 		display_buffer_len(BUFFER_LEN); //launch display
 
+
 		camera_address(&camera, fb[ord]);
 		camera_capture(&camera, exposure);
 
+
 		while(!camera_is_finished(&camera));
 		while(!display_is_finished());
+
+
+
 #else
+
 		camera_address(&camera, 0);
 		camera_capture(&camera, exposure);
 		while(!camera_is_finished(&camera));
 
+
 		display_buffer_addr(0);
 		display_buffer_len(BUFFER_LEN); //launch display
+
 		while(!display_is_finished());
 
 		waitms(33);
 #endif
 	}
+
 	return 0;
 }

@@ -16,6 +16,8 @@
 
 #include <stdio.h>
 
+#include <stdbool.h>
+
 #include "camera.h"
 #include "display.h"
 #include "io.h"

@@ -57,25 +57,25 @@ preplace inst soc_system.i2c_0 -pg 1 -lvl 3 -y 310
 preplace inst soc_system.hps_0.nand0 -pg 1
 preplace inst soc_system.hps_0.gpio2 -pg 1
 preplace inst soc_system.hps_0.arm_gic_0 -pg 1
-preplace inst soc_system.hps_0 -pg 1 -lvl 2 -y 290
+preplace inst soc_system.hps_0 -pg 1 -lvl 2 -y 250
 preplace inst soc_system.clk_0 -pg 1 -lvl 1 -y 160
 preplace inst soc_system.onchip_memory2_0 -pg 1 -lvl 3 -y 30
 preplace inst soc_system.hps_0.f2s_periph_ref_clk -pg 1
 preplace inst soc_system.hps_0.fpga_interfaces -pg 1
 preplace inst soc_system.jtag_uart_0 -pg 1 -lvl 3 -y 110
 preplace inst soc_system.hps_0.axi_sdram -pg 1
-preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)i2c_0.i2c,(SLAVE)soc_system.i2c_conduit) 1 0 3 NJ 410 NJ 410 NJ
+preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)clk_0.clk_in_reset,(SLAVE)soc_system.reset) 1 0 1 NJ
+preplace netloc INTERCONNECT<net_container>soc_system</net_container>(MASTER)display_0.avalon_master,(SLAVE)nios2_gen2_0.debug_mem_slave,(MASTER)camera_0.avalon_master,(MASTER)nios2_gen2_0.data_master,(SLAVE)jtag_uart_0.avalon_jtag_slave,(SLAVE)display_0.avalon_slave,(SLAVE)address_span_extender_0.windowed_slave,(MASTER)nios2_gen2_0.instruction_master,(SLAVE)camera_0.avalon_slave,(SLAVE)onchip_memory2_0.s1,(SLAVE)pio_leds.s1,(SLAVE)i2c_0.avalon_slave) 1 1 3 360 30 760 800 1110
 preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)soc_system.clk,(SLAVE)clk_0.clk_in) 1 0 1 NJ
 preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)camera_0.camera_conduit,(SLAVE)soc_system.camera_conduit) 1 0 3 NJ 430 NJ 430 NJ
-preplace netloc FAN_OUT<net_container>soc_system</net_container>(MASTER)nios2_gen2_0.irq,(SLAVE)jtag_uart_0.irq,(SLAVE)camera_0.interrupt_sender,(SLAVE)display_0.interrupt_sender,(SLAVE)i2c_0.interrupt_sender) 1 2 1 800
-preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)soc_system.display_conduit,(SLAVE)display_0.display_conduit) 1 0 3 NJ 450 NJ 450 NJ
-preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)soc_system.reset,(SLAVE)clk_0.clk_in_reset) 1 0 1 NJ
-preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)soc_system.leds_conduit,(SLAVE)pio_leds.external_connection) 1 0 3 NJ 720 NJ 720 NJ
-preplace netloc POINT_TO_POINT<net_container>soc_system</net_container>(MASTER)address_span_extender_0.expanded_master,(SLAVE)hps_0.f2h_sdram0_data) 1 1 3 360 250 NJ 300 1090
-preplace netloc FAN_OUT<net_container>soc_system</net_container>(SLAVE)onchip_memory2_0.clk1,(MASTER)clk_0.clk,(SLAVE)display_0.clock,(SLAVE)jtag_uart_0.clk,(SLAVE)nios2_gen2_0.clk,(SLAVE)i2c_0.clock,(SLAVE)hps_0.f2h_sdram0_clock,(SLAVE)camera_0.clock,(SLAVE)address_span_extender_0.clock,(SLAVE)pio_leds.clk) 1 1 2 340 470 820
-preplace netloc INTERCONNECT<net_container>soc_system</net_container>(SLAVE)onchip_memory2_0.reset1,(MASTER)clk_0.clk_reset,(MASTER)hps_0.h2f_reset,(SLAVE)camera_0.reset,(MASTER)nios2_gen2_0.debug_reset_request,(SLAVE)pio_leds.reset,(SLAVE)address_span_extender_0.reset,(SLAVE)nios2_gen2_0.reset,(SLAVE)i2c_0.reset,(SLAVE)display_0.reset,(SLAVE)jtag_uart_0.reset) 1 1 2 320 30 740
+preplace netloc FAN_OUT<net_container>soc_system</net_container>(SLAVE)camera_0.interrupt_sender,(SLAVE)jtag_uart_0.irq,(SLAVE)display_0.interrupt_sender,(SLAVE)i2c_0.interrupt_sender,(MASTER)nios2_gen2_0.irq) 1 2 1 800
+preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)pio_leds.external_connection,(SLAVE)soc_system.leds_conduit) 1 0 3 NJ 720 NJ 720 NJ
 preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)hps_0.memory,(SLAVE)soc_system.hps_0_ddr) 1 0 2 NJ 360 NJ
-preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)soc_system.hps_0_io,(SLAVE)hps_0.hps_io) 1 0 2 NJ 340 NJ
-preplace netloc INTERCONNECT<net_container>soc_system</net_container>(MASTER)display_0.avalon_master,(SLAVE)address_span_extender_0.windowed_slave,(SLAVE)display_0.avalon_slave,(MASTER)nios2_gen2_0.data_master,(MASTER)nios2_gen2_0.instruction_master,(SLAVE)i2c_0.avalon_slave,(SLAVE)nios2_gen2_0.debug_mem_slave,(SLAVE)jtag_uart_0.avalon_jtag_slave,(MASTER)camera_0.avalon_master,(SLAVE)camera_0.avalon_slave,(SLAVE)onchip_memory2_0.s1,(SLAVE)pio_leds.s1) 1 1 3 360 210 780 680 1090
-levelinfo -pg 1 0 110 1130
-levelinfo -hier soc_system 120 150 480 870 1110
+preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)soc_system.hps_0_io,(SLAVE)hps_0.hps_io) 1 0 2 NJ 300 NJ
+preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)display_0.display_conduit,(SLAVE)soc_system.display_conduit) 1 0 3 NJ 600 NJ 600 NJ
+preplace netloc INTERCONNECT<net_container>soc_system</net_container>(MASTER)hps_0.h2f_reset,(MASTER)nios2_gen2_0.debug_reset_request,(SLAVE)camera_0.reset,(SLAVE)display_0.reset,(SLAVE)nios2_gen2_0.reset,(SLAVE)i2c_0.reset,(SLAVE)onchip_memory2_0.reset1,(SLAVE)pio_leds.reset,(SLAVE)jtag_uart_0.reset,(MASTER)clk_0.clk_reset,(SLAVE)address_span_extender_0.reset) 1 1 2 360 210 740
+preplace netloc EXPORT<net_container>soc_system</net_container>(SLAVE)soc_system.i2c_conduit,(SLAVE)i2c_0.i2c) 1 0 3 NJ 410 NJ 410 NJ
+preplace netloc FAN_OUT<net_container>soc_system</net_container>(MASTER)clk_0.clk,(SLAVE)nios2_gen2_0.clk,(SLAVE)jtag_uart_0.clk,(SLAVE)onchip_memory2_0.clk1,(SLAVE)address_span_extender_0.clock,(SLAVE)display_0.clock,(SLAVE)pio_leds.clk,(SLAVE)camera_0.clock,(SLAVE)i2c_0.clock,(SLAVE)hps_0.f2h_sdram0_clock) 1 1 2 320 390 820
+preplace netloc POINT_TO_POINT<net_container>soc_system</net_container>(SLAVE)hps_0.f2h_sdram0_data,(MASTER)address_span_extender_0.expanded_master) 1 1 3 360 370 NJ 300 1110
+levelinfo -pg 1 0 110 1150
+levelinfo -hier soc_system 120 150 480 890 1130

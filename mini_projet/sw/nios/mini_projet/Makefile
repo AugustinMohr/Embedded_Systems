@@ -326,7 +326,7 @@ ifneq ($(CRT0),)
 APP_LDFLAGS += -msys-crt0='$(call adjust-path-mixed,$(CRT0))'
 endif
 ifneq ($(SYS_LIB),)
-APP_LDFLAGS += -msys-lib=hal_bsp   #-msys-lib=$(call adjust-path-mixed,$(SYS_LIB))
+APP_LDFLAGS += -msys-lib=$(SYS_LIB)   #-msys-lib=$(call adjust-path-mixed,$(SYS_LIB))
 endif
 
 endif # !AVOID_NIOS2_GCC3_OPTIONS
